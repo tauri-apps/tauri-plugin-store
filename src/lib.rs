@@ -17,9 +17,23 @@ struct ChangePayload {
     value: JsonValue,
 }
 
-struct StoreFile {
+pub struct StoreFile {
     path: PathBuf,
     cache: HashMap<String, JsonValue>,
+}
+
+impl StoreFile {
+    pub fn set(&mut self, key: String, value: JsonValue) {
+        self.cache.insert(key, value);
+    }
+
+    pub fn get(&mut self, key: &str) -> Option<JsonValue> {
+        self.cache.get(key).cloned()
+    }
+
+    pub fn remove(&mut self, key: &str) -> Option<JsonValue> {
+        self.cache.remove(key)
+    }
 }
 
 #[derive(Default)]
@@ -59,7 +73,7 @@ async fn set<R: Runtime>(
     value: JsonValue,
 ) -> Result<(), String> {
     with_store(&app, stores, path.clone(), |store| {
-        store.cache.insert(key.clone(), value.clone());
+        store.set(key.clone(), value.clone());
         let _ = window.emit("store://change", ChangePayload { path, key, value });
     });
     Ok(())
@@ -72,9 +86,7 @@ async fn get<R: Runtime>(
     path: PathBuf,
     key: String,
 ) -> Result<Option<JsonValue>, String> {
-    with_store(&app, stores, path, |store| {
-        Ok(store.cache.get(&key).cloned())
-    })
+    with_store(&app, stores, path, |store| Ok(store.get(&key)))
 }
 
 #[command]
@@ -84,9 +96,7 @@ async fn has<R: Runtime>(
     path: PathBuf,
     key: String,
 ) -> Result<bool, String> {
-    with_store(&app, stores, path, |store| {
-        Ok(store.cache.get(&key).is_some())
-    })
+    with_store(&app, stores, path, |store| Ok(store.get(&key).is_some()))
 }
 
 #[command]
@@ -98,7 +108,7 @@ async fn delete<R: Runtime>(
     key: String,
 ) -> Result<bool, String> {
     with_store(&app, stores, path.clone(), |store| {
-        let flag = store.cache.remove(&key).is_some();
+        let flag = store.remove(&key).is_some();
         if flag {
             let _ = window.emit(
                 "store://change",
@@ -167,25 +177,22 @@ impl<R: Runtime> Plugin<R> for Store<R> {
     }
 
     fn on_event(&mut self, app: &AppHandle<R>, event: &Event) {
-        match event {
-            Event::Exit => {
-                let stores = app.state::<StoreCollection>();
-                let app_dir = app.path_resolver().app_dir().unwrap();
-                if create_dir_all(&app_dir).is_ok() {
-                    for store in stores.0.lock().unwrap().values() {
-                        let _ = File::create(&store.path)
-                            .map_err(tauri::api::Error::Io)
-                            .and_then(|mut f| {
-                                f.write_all(
-                                    &bincode::serialize(&serde_json::to_string(&store.cache)?)
-                                        .map_err(tauri::api::Error::Bincode)?,
-                                )
-                                .map_err(Into::into)
-                            });
-                    }
+        if let Event::Exit = event {
+            let stores = app.state::<StoreCollection>();
+            let app_dir = app.path_resolver().app_dir().unwrap();
+            if create_dir_all(&app_dir).is_ok() {
+                for store in stores.0.lock().unwrap().values() {
+                    let _ = File::create(&store.path)
+                        .map_err(tauri::api::Error::Io)
+                        .and_then(|mut f| {
+                            f.write_all(
+                                &bincode::serialize(&serde_json::to_string(&store.cache)?)
+                                    .map_err(tauri::api::Error::Bincode)?,
+                            )
+                            .map_err(Into::into)
+                        });
                 }
             }
-            _ => (),
         }
     }
 }
