@@ -40,7 +40,8 @@ fn with_store<R: Runtime, T, F: FnOnce(&mut StoreFile) -> T>(
         let store_path = app_dir.join(&path);
         StoreFile {
             cache: tauri::api::file::read_binary(&store_path)
-                .and_then(|state| bincode::deserialize(&state).map_err(Into::into))
+                .and_then(|state| bincode::deserialize::<String>(&state).map_err(Into::into))
+                .and_then(|state| serde_json::from_str(&state).map_err(Into::into))
                 .unwrap_or_default(),
             path: store_path,
         }
@@ -176,7 +177,7 @@ impl<R: Runtime> Plugin<R> for Store<R> {
                             .map_err(tauri::api::Error::Io)
                             .and_then(|mut f| {
                                 f.write_all(
-                                    &bincode::serialize(&store.cache)
+                                    &bincode::serialize(&serde_json::to_string(&store.cache)?)
                                         .map_err(tauri::api::Error::Bincode)?,
                                 )
                                 .map_err(Into::into)
