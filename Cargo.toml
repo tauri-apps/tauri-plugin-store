@@ -1,0 +1,13 @@
+[package]
+name = "tauri-plugin-store"
+version = "0.0.0"
+authors = [ "Tauri Programme within The Commons Conservancy" ]
+description = "A Tauri plugin for simple data persistency"
+edition = "2018"
+exclude = ["/examples", "/webview-dist", "/webview-src", "node_modules"]
+
+[dependencies]
+tauri = { git = "https://github.com/tauri-apps/tauri/", branch = "next" }
+serde = "1.0"
+serde_json = "1.0"
+bincode = "1.3"
