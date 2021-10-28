@@ -4,6 +4,9 @@
   "authors": [
     "Tauri Programme within The Commons Conservancy"
   ],
+  "files": [
+    "webview-dist"
+  ],
   "description": "API wrapper for the Tauri Plugin for simple data persistence",
   "browser": "webview-dist/index.min.js",
   "module": "webview-dist/index.mjs",
