@@ -1,16 +1,22 @@
 {
   "compilerOptions": {
-    "target": "ES5",
+    "target": "ES2019",
     "strict": true,
-    "allowJs": true,
-    "esModuleInterop": true,
-    "baseUrl": ".",
-    "paths": {
-      "types": ["@types"]
-    },
+    "lib": [
+      "ES2019",
+      "ES2020.Promise",
+      "ES2020.String",
+      "DOM",
+    ],
+    "noEmitOnError": true,
+    // module resolution
+    "moduleResolution": "node",
+    // advanced
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
     "declaration": true,
     "declarationDir": "../webview-dist",
-    "rootDir": "./"
+    "rootDir": "./",
   },
-  "include": ["./"]
+  "exclude": ["node_modules"]
 }
