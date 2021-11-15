@@ -7,7 +7,6 @@ use std::{
     fs::{create_dir_all, File},
     io::Write,
     path::PathBuf,
-    str::FromStr,
     sync::Mutex,
 };
 
@@ -199,7 +198,7 @@ impl<R: Runtime> Default for Store<R> {
     fn default() -> Self {
         Self {
             invoke_handler: Box::new(tauri::generate_handler![
-                set, get, has, delete, clear, keys, values, length
+                set, get, has, delete, clear, keys, values, length, entries
             ]),
         }
     }
