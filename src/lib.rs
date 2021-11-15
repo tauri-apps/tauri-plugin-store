@@ -7,6 +7,7 @@ use std::{
     fs::{create_dir_all, File},
     io::Write,
     path::PathBuf,
+    str::FromStr,
     sync::Mutex,
 };
 
@@ -147,6 +148,75 @@ async fn clear<R: Runtime>(
     })
 }
 
+#[command]
+async fn reset<R: Runtime>(
+    app: AppHandle<R>,
+    window: Window<R>,
+    stores: State<'_, StoreCollection>,
+    path: PathBuf,
+) -> Result<(), String> {
+    with_store(&app, stores, path.clone(), |store| {
+        if let Some(defaults) = &store.defaults {
+            for (key, value) in &store.cache {
+                if defaults.get(key) != Some(value) {
+                    let _ = window.emit(
+                        "store://change",
+                        ChangePayload {
+                            path: path.clone(),
+                            key: key.clone(),
+                            value: defaults.get(key).cloned().unwrap_or(JsonValue::Null),
+                        },
+                    );
+                }
+            }
+            store.cache = defaults.clone();
+        }
+        Ok(())
+    })
+}
+
+#[tauri::command]
+async fn keys<R: Runtime>(
+    app: AppHandle<R>,
+    stores: State<'_, StoreCollection>,
+    path: PathBuf,
+) -> Result<Vec<String>, String> {
+    with_store(&app, stores, path, |store| {
+        Ok(store.cache.keys().cloned().collect())
+    })
+}
+
+#[tauri::command]
+async fn values<R: Runtime>(
+    app: AppHandle<R>,
+    stores: State<'_, StoreCollection>,
+    path: PathBuf,
+) -> Result<Vec<JsonValue>, String> {
+    with_store(&app, stores, path, |store| {
+        Ok(store.cache.values().cloned().collect())
+    })
+}
+
+#[tauri::command]
+async fn entries<R: Runtime>(
+    app: AppHandle<R>,
+    stores: State<'_, StoreCollection>,
+    path: PathBuf,
+) -> Result<Vec<(String, JsonValue)>, String> {
+    with_store(&app, stores, path, |store| {
+        Ok(store.cache.clone().into_iter().collect())
+    })
+}
+
+#[tauri::command]
+async fn length<R: Runtime>(
+    app: AppHandle<R>,
+    stores: State<'_, StoreCollection>,
+    path: PathBuf,
+) -> Result<usize, String> {
+    with_store(&app, stores, path, |store| Ok(store.cache.len()))
+}
+
 /// Tauri SQL plugin.
 pub struct Store<R: Runtime> {
     invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync>,
@@ -155,7 +225,9 @@ pub struct Store<R: Runtime> {
 impl<R: Runtime> Default for Store<R> {
     fn default() -> Self {
         Self {
-            invoke_handler: Box::new(tauri::generate_handler![set, get, has, delete, clear]),
+            invoke_handler: Box::new(tauri::generate_handler![
+                set, get, has, delete, clear, reset, keys, values, length
+            ]),
         }
     }
 }

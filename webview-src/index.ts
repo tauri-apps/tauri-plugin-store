@@ -48,6 +48,36 @@ export default class Store {
     })
   }
 
+  reset(): Promise<void> {
+    return invoke('plugin:store|reset', {
+      path: this.path
+    })
+  }
+
+  keys(): Promise<string[]> {
+    return invoke('plugin:store|keys', {
+      path: this.path
+    })
+  }
+  
+  values(): Promise<string[]> {
+    return invoke('plugin:store|values', {
+      path: this.path
+    })
+  }
+
+  entries<T>(): Promise<[key: string, value: T][]> {
+    return invoke('plugin:store|entries', {
+      path: this.path
+    })
+  }
+
+  length(): Promise<string[]> {
+    return invoke('plugin:store|length', {
+      path: this.path
+    })
+  }
+
   onKeyChange<T>(key: string, cb: (value: T | null) => void) {
     appWindow.listen<ChangePayload<T>>('store://change', event => {
       if (event.payload.path === this.path && event.payload.key === key) {
