@@ -1,6 +1,9 @@
 use serde::Serialize;
 use serde_json::Value as JsonValue;
-use tauri::{AppHandle, Event, Invoke, Manager, Runtime, State, Window, api::file::read_binary, command, plugin::Plugin};
+use tauri::{
+    api::file::read_binary, command, plugin::Plugin, AppHandle, Event, Invoke, Manager, Runtime,
+    State, Window,
+};
 
 use std::{
     collections::HashMap,
@@ -49,11 +52,11 @@ impl StoreFile {
         let store_path = app_dir.join(&self.path);
 
         let state = read_binary(&store_path)
-        .and_then(|state| bincode::deserialize::<String>(&state).map_err(Into::into))
-        .and_then(|state| serde_json::from_str(&state).map_err(Into::into));
+            .and_then(|state| bincode::deserialize::<String>(&state).map_err(Into::into))
+            .and_then(|state| serde_json::from_str(&state).map_err(Into::into));
 
         if let Ok(state) = state {
-                self.cache = state;
+            self.cache = state;
         }
         self
     }
@@ -242,7 +245,7 @@ impl<R: Runtime> Plugin<R> for Store<R> {
                 let path = PathBuf::from_str(key).expect("expected key to be valid file path");
                 let defaults = serde_json::from_value::<HashMap<String, JsonValue>>(value.clone())
                     .expect("failed to parse defaults");
-                
+
                 let mut store = StoreFile::with_defaults(path.clone(), defaults);
                 store.load(app);
 
