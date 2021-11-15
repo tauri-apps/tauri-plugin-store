@@ -7,6 +7,7 @@ use std::{
     fs::{create_dir_all, File},
     io::Write,
     path::PathBuf,
+    str::FromStr,
     sync::Mutex,
 };
 
@@ -171,6 +172,19 @@ async fn reset<R: Runtime>(
                 }
             }
             store.cache = defaults.clone();
+        } else {
+            let keys = store.cache.keys().cloned().collect::<Vec<String>>();
+            store.cache = Default::default();
+            for key in keys {
+                let _ = window.emit(
+                    "store://change",
+                    ChangePayload {
+                        path: path.clone(),
+                        key,
+                        value: JsonValue::Null,
+                    },
+                );
+            }
         }
         Ok(())
     })
@@ -183,7 +197,9 @@ pub struct Store<R: Runtime> {
 impl<R: Runtime> Default for Store<R> {
     fn default() -> Self {
         Self {
-            invoke_handler: Box::new(tauri::generate_handler![set, get, has, delete, clear]),
+            invoke_handler: Box::new(tauri::generate_handler![
+                set, get, has, delete, clear, reset
+            ]),
         }
     }
 }

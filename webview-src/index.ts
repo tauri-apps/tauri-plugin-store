@@ -53,6 +53,7 @@ export default class Store {
       path: this.path
     })
   }
+  
   onKeyChange<T>(key: string, cb: (value: T | null) => void) {
     appWindow.listen<ChangePayload<T>>('store://change', event => {
       if (event.payload.path === this.path && event.payload.key === key) {
