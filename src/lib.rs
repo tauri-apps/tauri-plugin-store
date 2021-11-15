@@ -148,33 +148,6 @@ async fn clear<R: Runtime>(
     })
 }
 
-#[command]
-async fn reset<R: Runtime>(
-    app: AppHandle<R>,
-    window: Window<R>,
-    stores: State<'_, StoreCollection>,
-    path: PathBuf,
-) -> Result<(), String> {
-    with_store(&app, stores, path.clone(), |store| {
-        if let Some(defaults) = &store.defaults {
-            for (key, value) in &store.cache {
-                if defaults.get(key) != Some(value) {
-                    let _ = window.emit(
-                        "store://change",
-                        ChangePayload {
-                            path: path.clone(),
-                            key: key.clone(),
-                            value: defaults.get(key).cloned().unwrap_or(JsonValue::Null),
-                        },
-                    );
-                }
-            }
-            store.cache = defaults.clone();
-        }
-        Ok(())
-    })
-}
-
 #[tauri::command]
 async fn keys<R: Runtime>(
     app: AppHandle<R>,
@@ -226,7 +199,7 @@ impl<R: Runtime> Default for Store<R> {
     fn default() -> Self {
         Self {
             invoke_handler: Box::new(tauri::generate_handler![
-                set, get, has, delete, clear, reset, keys, values, length
+                set, get, has, delete, clear, keys, values, length
             ]),
         }
     }
