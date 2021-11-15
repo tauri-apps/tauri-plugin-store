@@ -1,6 +1,6 @@
 use serde::Serialize;
 use serde_json::Value as JsonValue;
-use tauri::{command, plugin::Plugin, AppHandle, Event, Invoke, Manager, Runtime, State, Window};
+use tauri::{AppHandle, Event, Invoke, Manager, Runtime, State, Window, api::file::read_binary, command, plugin::Plugin};
 
 use std::{
     collections::HashMap,
@@ -25,6 +25,39 @@ pub struct StoreFile {
 }
 
 impl StoreFile {
+    pub fn new(path: PathBuf) -> Self {
+        Self {
+            path,
+            defaults: None,
+            cache: Default::default(),
+        }
+    }
+
+    pub fn with_defaults(path: PathBuf, defaults: HashMap<String, JsonValue>) -> Self {
+        Self {
+            path,
+            defaults: Some(defaults.clone()),
+            cache: defaults,
+        }
+    }
+
+    pub fn load<'a, R: Runtime>(&'a mut self, app: &AppHandle<R>) -> &'a mut Self {
+        let app_dir = app
+            .path_resolver()
+            .app_dir()
+            .expect("failed to resolve app dir");
+        let store_path = app_dir.join(&self.path);
+
+        let state = read_binary(&store_path)
+        .and_then(|state| bincode::deserialize::<String>(&state).map_err(Into::into))
+        .and_then(|state| serde_json::from_str(&state).map_err(Into::into));
+
+        if let Ok(state) = state {
+                self.cache = state;
+        }
+        self
+    }
+
     pub fn set(&mut self, key: String, value: JsonValue) {
         self.cache.insert(key, value);
     }
@@ -49,19 +82,9 @@ fn with_store<R: Runtime, T, F: FnOnce(&mut StoreFile) -> T>(
 ) -> T {
     let mut stores = stores.0.lock().unwrap();
     let store = stores.entry(path.clone()).or_insert_with(|| {
-        let app_dir = app
-            .path_resolver()
-            .app_dir()
-            .expect("failed to resolve app dir");
-        let store_path = app_dir.join(&path);
-        StoreFile {
-            defaults: None,
-            cache: tauri::api::file::read_binary(&store_path)
-                .and_then(|state| bincode::deserialize::<String>(&state).map_err(Into::into))
-                .and_then(|state| serde_json::from_str(&state).map_err(Into::into))
-                .unwrap_or_default(),
-            path: store_path,
-        }
+        let mut store = StoreFile::new(path);
+        store.load(app);
+        store
     });
     f(store)
 }
@@ -219,14 +242,11 @@ impl<R: Runtime> Plugin<R> for Store<R> {
                 let path = PathBuf::from_str(key).expect("expected key to be valid file path");
                 let defaults = serde_json::from_value::<HashMap<String, JsonValue>>(value.clone())
                     .expect("failed to parse defaults");
-                stores.insert(
-                    path.clone(),
-                    StoreFile {
-                        path,
-                        defaults: Some(defaults.clone()),
-                        cache: defaults,
-                    },
-                );
+                
+                let mut store = StoreFile::with_defaults(path.clone(), defaults);
+                store.load(app);
+
+                stores.insert(path, store);
             }
 
             StoreCollection(Mutex::new(stores))
