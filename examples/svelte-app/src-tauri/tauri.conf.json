@@ -50,5 +50,14 @@
     "security": {
       "csp": "default-src blob: data: filesystem: ws: http: https: 'unsafe-eval' 'unsafe-inline'"
     }
+  },
+  "plugins": {
+    "store": {
+      "defaults": {
+        ".settings": {
+          "the-key": "woooooot"
+        }
+      }
+    }
   }
 }
