@@ -35,6 +35,41 @@ class Store {
             path: this.path
         });
     }
+    reset() {
+        return invoke('plugin:store|reset', {
+            path: this.path
+        });
+    }
+    keys() {
+        return invoke('plugin:store|keys', {
+            path: this.path
+        });
+    }
+    values() {
+        return invoke('plugin:store|values', {
+            path: this.path
+        });
+    }
+    entries() {
+        return invoke('plugin:store|entries', {
+            path: this.path
+        });
+    }
+    length() {
+        return invoke('plugin:store|length', {
+            path: this.path
+        });
+    }
+    load() {
+        return invoke('plugin:store|load', {
+            path: this.path
+        });
+    }
+    save() {
+        return invoke('plugin:store|save', {
+            path: this.path
+        });
+    }
     onKeyChange(key, cb) {
         appWindow.listen('store://change', event => {
             if (event.payload.path === this.path && event.payload.key === key) {

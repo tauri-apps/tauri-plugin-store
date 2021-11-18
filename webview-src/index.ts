@@ -1,3 +1,7 @@
+// Copyright 2021 Tauri Programme within The Commons Conservancy
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
+
 import { invoke } from '@tauri-apps/api/tauri'
 import { appWindow } from '@tauri-apps/api/window'
 
@@ -44,6 +48,48 @@ export default class Store {
 
   clear(): Promise<void> {
     return invoke('plugin:store|clear', {
+      path: this.path
+    })
+  }
+
+  reset(): Promise<void> {
+    return invoke('plugin:store|reset', {
+      path: this.path
+    })
+  }
+
+  keys(): Promise<string[]> {
+    return invoke('plugin:store|keys', {
+      path: this.path
+    })
+  }
+  
+  values(): Promise<string[]> {
+    return invoke('plugin:store|values', {
+      path: this.path
+    })
+  }
+
+  entries<T>(): Promise<[key: string, value: T][]> {
+    return invoke('plugin:store|entries', {
+      path: this.path
+    })
+  }
+
+  length(): Promise<string[]> {
+    return invoke('plugin:store|length', {
+      path: this.path
+    })
+  }
+
+  load(): Promise<void> {
+    return invoke('plugin:store|load', {
+      path: this.path
+    })
+  }
+
+  save(): Promise<void> {
+    return invoke('plugin:store|save', {
       path: this.path
     })
   }
