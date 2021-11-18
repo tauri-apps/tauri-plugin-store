@@ -6,11 +6,11 @@ pub use error::Error;
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 use std::{collections::HashMap, path::PathBuf, sync::Mutex};
-pub use store_file::{Store, StoreBuilder};
+pub use store::{Store, StoreBuilder};
 use tauri::{plugin::Plugin, AppHandle, Event, Invoke, Manager, Runtime, State, Window};
 
 mod error;
-mod store_file;
+mod store;
 
 #[derive(Serialize, Clone)]
 struct ChangePayload {
