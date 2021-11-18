@@ -3,15 +3,15 @@
   windows_subsystem = "windows"
 )]
 
-use tauri_plugin_store::{Store, StoreFileBuilder};
+use tauri_plugin_store::{StoreBuilder, StorePlugin};
 
 fn main() {
-  let settings = StoreFileBuilder::new(".settings".parse().unwrap())
-  .default("the-key".to_string(), "wooooot".into())
-  .build();
+  let settings = StoreBuilder::new(".settings".parse().unwrap())
+    .default("the-key".to_string(), "wooooot".into())
+    .build();
 
   tauri::Builder::default()
-    .plugin(Store::with_stores(vec![settings]))
+    .plugin(StorePlugin::with_stores(vec![settings]))
     .run(tauri::generate_context!())
     .expect("failed to run app");
 }
