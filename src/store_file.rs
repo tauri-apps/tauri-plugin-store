@@ -74,7 +74,7 @@ impl StoreBuilder {
   ///
   /// # Ok(())
   /// # }
-  pub fn defaults(&mut self, defaults: HashMap<String, JsonValue>) -> &mut Self {
+  pub fn defaults(mut self, defaults: HashMap<String, JsonValue>) -> Self {
     self.cache = defaults.clone();
     self.defaults = Some(defaults);
     self
@@ -92,7 +92,7 @@ impl StoreBuilder {
   ///
   /// # Ok(())
   /// # }
-  pub fn default(&mut self, key: String, value: JsonValue) -> &mut Self {
+  pub fn default(mut self, key: String, value: JsonValue) -> Self {
     self.cache.insert(key.clone(), value.clone());
     self
       .defaults
@@ -113,7 +113,7 @@ impl StoreBuilder {
   ///
   /// # Ok(())
   /// # }
-  pub fn serialize(&mut self, serialize: SerializeFn) -> &mut Self {
+  pub fn serialize(mut self, serialize: SerializeFn) -> Self {
     self.serialize = serialize;
     self
   }
@@ -130,7 +130,7 @@ impl StoreBuilder {
   ///
   /// # Ok(())
   /// # }
-  pub fn deserialize(&mut self, deserialize: DeserializeFn) -> &mut Self {
+  pub fn deserialize(mut self, deserialize: DeserializeFn) -> Self {
     self.deserialize = deserialize;
     self
   }
