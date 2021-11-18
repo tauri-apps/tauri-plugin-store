@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-License-Identifier: MIT
 
-use crate::error::Error;
-use crate::store_file::StoreFile;
+pub use error::Error;
 use serde::Serialize;
 use serde_json::Value as JsonValue;
-use std::{collections::HashMap, path::PathBuf, str::FromStr, sync::Mutex};
+use std::{collections::HashMap, path::PathBuf, sync::Mutex};
+pub use store_file::{StoreFile, StoreFileBuilder};
 use tauri::{plugin::Plugin, AppHandle, Event, Invoke, Manager, Runtime, State, Window};
 
 mod error;
@@ -19,7 +19,7 @@ struct ChangePayload {
   value: JsonValue,
 }
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 struct StoreCollection(Mutex<HashMap<PathBuf, StoreFile>>);
 
 fn with_store<R: Runtime, T, F: FnOnce(&mut StoreFile) -> Result<T, Error>>(
@@ -31,7 +31,7 @@ fn with_store<R: Runtime, T, F: FnOnce(&mut StoreFile) -> Result<T, Error>>(
   let mut stores = stores.0.lock().expect("mutex poisoned");
 
   if !stores.contains_key(&path) {
-    let mut store = StoreFile::new(path.clone());
+    let mut store = StoreFileBuilder::new(path.clone()).build();
     // ignore loading errors, just use the default
     let _ = store.load(app);
     stores.insert(path.clone(), store);
@@ -230,6 +230,7 @@ async fn save<R: Runtime>(
 
 pub struct Store<R: Runtime> {
   invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync>,
+  stores: Option<HashMap<PathBuf, StoreFile>>,
 }
 
 impl<R: Runtime> Default for Store<R> {
@@ -238,6 +239,23 @@ impl<R: Runtime> Default for Store<R> {
       invoke_handler: Box::new(tauri::generate_handler![
         set, get, has, delete, clear, reset, keys, values, length, entries, load, save
       ]),
+      stores: None,
+    }
+  }
+}
+
+impl<R: Runtime> Store<R> {
+  pub fn with_stores<T: IntoIterator<Item = StoreFile>>(stores: T) -> Self {
+    Self {
+      invoke_handler: Box::new(tauri::generate_handler![
+        set, get, has, delete, clear, reset, keys, values, length, entries, load, save
+      ]),
+      stores: Some(
+        stores
+          .into_iter()
+          .map(|store| (store.path.clone(), store))
+          .collect(),
+      ),
     }
   }
 }
@@ -251,27 +269,10 @@ impl<R: Runtime> Plugin<R> for Store<R> {
     (self.invoke_handler)(message)
   }
 
-  fn initialize(&mut self, app: &AppHandle<R>, config: JsonValue) -> tauri::plugin::Result<()> {
-    let defaults = config
-      .get("defaults")
-      .and_then(|v| v.as_object().cloned())
-      .unwrap_or_default();
-    let mut stores = HashMap::<PathBuf, StoreFile>::new();
-
-    for (key, value) in defaults {
-      let path = PathBuf::from_str(&key).expect("expected key to be valid file path");
-      let defaults = serde_json::from_value::<HashMap<String, JsonValue>>(value.clone())
-        .expect("failed to parse defaults");
-
-      let mut store = StoreFile::with_defaults(path.clone(), defaults);
-      // ignore loading errors, just use the default
-      let _ = store.load(app);
-
-      stores.insert(path, store);
-    }
-
-    app.manage(StoreCollection(Mutex::new(stores)));
-
+  fn initialize(&mut self, app: &AppHandle<R>, _: JsonValue) -> tauri::plugin::Result<()> {
+    app.manage(StoreCollection(Mutex::new(
+      self.stores.clone().unwrap_or_default(),
+    )));
     Ok(())
   }
 
