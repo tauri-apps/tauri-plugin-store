@@ -5,6 +5,7 @@ authors = [ "Tauri Programme within The Commons Conservancy" ]
 description = "A Tauri plugin for simple data persistency"
 edition = "2018"
 exclude = ["/examples", "/webview-dist", "/webview-src", "node_modules"]
+license = "Apache-2.0 OR MIT"
 
 [dependencies]
 tauri = { git = "https://github.com/tauri-apps/tauri/", branch = "next" }
