@@ -12,11 +12,11 @@ use std::{
 };
 use tauri::{AppHandle, Runtime};
 
-type SerializeFn = fn(&Store) -> Result<Vec<u8>, Error>;
+type SerializeFn = fn(&HashMap<String, JsonValue>) -> Result<Vec<u8>, Error>;
 type DeserializeFn = fn(&[u8]) -> Result<HashMap<String, JsonValue>, Error>;
 
-fn default_serialize(store: &Store) -> Result<Vec<u8>, Error> {
-  Ok(bincode::serialize(&serde_json::to_string(&store.cache)?)?)
+fn default_serialize(cache: &HashMap<String, JsonValue>) -> Result<Vec<u8>, Error> {
+  Ok(bincode::serialize(&serde_json::to_string(&cache)?)?)
 }
 
 fn default_deserialize(bytes: &[u8]) -> Result<HashMap<String, JsonValue>, Error> {
@@ -25,6 +25,7 @@ fn default_deserialize(bytes: &[u8]) -> Result<HashMap<String, JsonValue>, Error
   )?)?)
 }
 
+/// Builds a [`Store`]
 pub struct StoreBuilder {
   path: PathBuf,
   defaults: Option<HashMap<String, JsonValue>>,
@@ -34,6 +35,18 @@ pub struct StoreBuilder {
 }
 
 impl StoreBuilder {
+  /// Creates a new [`StoreBuilder`].
+  ///
+  /// # Examples
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::StoreBuilder;
+  ///
+  /// let builder = StoreBuilder::new("store.bin".parse()?);
+  /// 
+  /// # Ok(())
+  /// # }
+  /// ```
   pub fn new(path: PathBuf) -> Self {
     Self {
       path,
@@ -44,12 +57,41 @@ impl StoreBuilder {
     }
   }
 
+  /// Inserts a default key-value pair.
+  ///   
+  /// # Examples
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::StoreBuilder;
+  /// use std::collections::HashMap;
+  ///
+  /// let mut defaults = HashMap::new();
+  /// 
+  /// defaults.insert("foo".to_string(), "bar".into());
+  /// 
+  /// let builder = StoreBuilder::new("store.bin".parse()?)
+  ///   .defaults(defaults);
+  /// 
+  /// # Ok(())
+  /// # }
   pub fn defaults(&mut self, defaults: HashMap<String, JsonValue>) -> &mut Self {
     self.cache = defaults.clone();
     self.defaults = Some(defaults);
     self
   }
 
+  /// Inserts multiple key-value pairs.
+  /// 
+  /// # Examples
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::StoreBuilder;
+  /// 
+  /// let builder = StoreBuilder::new("store.bin".parse()?)
+  ///   .default("foo".to_string(), "bar".into());
+  /// 
+  /// # Ok(())
+  /// # }
   pub fn default(&mut self, key: String, value: JsonValue) -> &mut Self {
     self.cache.insert(key.clone(), value.clone());
     self
@@ -59,16 +101,51 @@ impl StoreBuilder {
     self
   }
 
+  /// Defines a custom serialization function.
+  /// 
+  /// # Examples
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::StoreBuilder;
+  /// 
+  /// let builder = StoreBuilder::new("store.json".parse()?)
+  ///   .serialize(|cache| serde_json::to_vec(&cache).map_err(Into::into));
+  /// 
+  /// # Ok(())
+  /// # }
   pub fn serialize(&mut self, serialize: SerializeFn) -> &mut Self {
     self.serialize = serialize;
     self
   }
 
+  /// Defines a custom deserialization function
+  /// 
+  /// # Examples
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::StoreBuilder;
+  /// 
+  /// let builder = StoreBuilder::new("store.json".parse()?)
+  ///   .deserialize(|bytes| serde_json::from_slice(&bytes).map_err(Into::into));
+  /// 
+  /// # Ok(())
+  /// # }
   pub fn deserialize(&mut self, deserialize: DeserializeFn) -> &mut Self {
     self.deserialize = deserialize;
     self
   }
 
+  /// Builds the [`Store`].
+  /// 
+  /// # Examples
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::StoreBuilder;
+  ///
+  /// let store = StoreBuilder::new("store.bin".parse()?).build();
+  /// 
+  /// # Ok(())
+  /// # }
   pub fn build(&self) -> Store {
     Store {
       path: self.path.clone(),
@@ -90,6 +167,7 @@ pub struct Store {
 }
 
 impl Store {
+  /// Update the store from the on-disk state
   pub fn load<R: Runtime>(&mut self, app: &AppHandle<R>) -> Result<(), Error> {
     let app_dir = app
       .path_resolver()
@@ -104,6 +182,7 @@ impl Store {
     Ok(())
   }
 
+  /// Saves the store to disk
   pub fn save<R: Runtime>(&self, app: &AppHandle<R>) -> Result<(), Error> {
     let app_dir = app
       .path_resolver()
@@ -113,7 +192,7 @@ impl Store {
 
     create_dir_all(store_path.parent().expect("invalid store path"))?;
 
-    let bytes = (self.serialize)(self)?;
+    let bytes = (self.serialize)(&self.cache)?;
     let mut f = File::create(&self.path)?;
     f.write_all(&bytes)?;
 
