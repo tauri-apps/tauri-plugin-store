@@ -43,7 +43,7 @@ impl StoreBuilder {
   /// use tauri_plugin_store::StoreBuilder;
   ///
   /// let builder = StoreBuilder::new("store.bin".parse()?);
-  /// 
+  ///
   /// # Ok(())
   /// # }
   /// ```
@@ -66,12 +66,12 @@ impl StoreBuilder {
   /// use std::collections::HashMap;
   ///
   /// let mut defaults = HashMap::new();
-  /// 
+  ///
   /// defaults.insert("foo".to_string(), "bar".into());
-  /// 
+  ///
   /// let builder = StoreBuilder::new("store.bin".parse()?)
   ///   .defaults(defaults);
-  /// 
+  ///
   /// # Ok(())
   /// # }
   pub fn defaults(&mut self, defaults: HashMap<String, JsonValue>) -> &mut Self {
@@ -81,15 +81,15 @@ impl StoreBuilder {
   }
 
   /// Inserts multiple key-value pairs.
-  /// 
+  ///
   /// # Examples
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
   /// use tauri_plugin_store::StoreBuilder;
-  /// 
+  ///
   /// let builder = StoreBuilder::new("store.bin".parse()?)
   ///   .default("foo".to_string(), "bar".into());
-  /// 
+  ///
   /// # Ok(())
   /// # }
   pub fn default(&mut self, key: String, value: JsonValue) -> &mut Self {
@@ -102,15 +102,15 @@ impl StoreBuilder {
   }
 
   /// Defines a custom serialization function.
-  /// 
+  ///
   /// # Examples
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
   /// use tauri_plugin_store::StoreBuilder;
-  /// 
+  ///
   /// let builder = StoreBuilder::new("store.json".parse()?)
   ///   .serialize(|cache| serde_json::to_vec(&cache).map_err(Into::into));
-  /// 
+  ///
   /// # Ok(())
   /// # }
   pub fn serialize(&mut self, serialize: SerializeFn) -> &mut Self {
@@ -119,15 +119,15 @@ impl StoreBuilder {
   }
 
   /// Defines a custom deserialization function
-  /// 
+  ///
   /// # Examples
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
   /// use tauri_plugin_store::StoreBuilder;
-  /// 
+  ///
   /// let builder = StoreBuilder::new("store.json".parse()?)
   ///   .deserialize(|bytes| serde_json::from_slice(&bytes).map_err(Into::into));
-  /// 
+  ///
   /// # Ok(())
   /// # }
   pub fn deserialize(&mut self, deserialize: DeserializeFn) -> &mut Self {
@@ -136,14 +136,14 @@ impl StoreBuilder {
   }
 
   /// Builds the [`Store`].
-  /// 
+  ///
   /// # Examples
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
   /// use tauri_plugin_store::StoreBuilder;
   ///
   /// let store = StoreBuilder::new("store.bin".parse()?).build();
-  /// 
+  ///
   /// # Ok(())
   /// # }
   pub fn build(&self) -> Store {
