@@ -146,11 +146,11 @@ impl StoreBuilder {
   ///
   /// # Ok(())
   /// # }
-  pub fn build(&self) -> Store {
+  pub fn build(self) -> Store {
     Store {
-      path: self.path.clone(),
-      defaults: self.defaults.clone(),
-      cache: self.cache.clone(),
+      path: self.path,
+      defaults: self.defaults,
+      cache: self.cache,
       serialize: self.serialize,
       deserialize: self.deserialize,
     }
