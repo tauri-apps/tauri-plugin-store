@@ -6,7 +6,7 @@ pub use error::Error;
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 use std::{collections::HashMap, path::PathBuf, sync::Mutex};
-pub use store_file::{StoreFile, StoreFileBuilder};
+pub use store_file::{Store, StoreBuilder};
 use tauri::{plugin::Plugin, AppHandle, Event, Invoke, Manager, Runtime, State, Window};
 
 mod error;
@@ -20,9 +20,9 @@ struct ChangePayload {
 }
 
 #[derive(Default)]
-struct StoreCollection(Mutex<HashMap<PathBuf, StoreFile>>);
+struct StoreCollection(Mutex<HashMap<PathBuf, Store>>);
 
-fn with_store<R: Runtime, T, F: FnOnce(&mut StoreFile) -> Result<T, Error>>(
+fn with_store<R: Runtime, T, F: FnOnce(&mut Store) -> Result<T, Error>>(
   app: &AppHandle<R>,
   stores: State<'_, StoreCollection>,
   path: PathBuf,
@@ -31,7 +31,7 @@ fn with_store<R: Runtime, T, F: FnOnce(&mut StoreFile) -> Result<T, Error>>(
   let mut stores = stores.0.lock().expect("mutex poisoned");
 
   if !stores.contains_key(&path) {
-    let mut store = StoreFileBuilder::new(path.clone()).build();
+    let mut store = StoreBuilder::new(path.clone()).build();
     // ignore loading errors, just use the default
     let _ = store.load(app);
     stores.insert(path.clone(), store);
@@ -228,12 +228,12 @@ async fn save<R: Runtime>(
   with_store(&app, stores, path, |store| store.save(&app))
 }
 
-pub struct Store<R: Runtime> {
+pub struct StorePlugin<R: Runtime> {
   invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync>,
-  stores: Option<HashMap<PathBuf, StoreFile>>,
+  stores: Option<HashMap<PathBuf, Store>>,
 }
 
-impl<R: Runtime> Default for Store<R> {
+impl<R: Runtime> Default for StorePlugin<R> {
   fn default() -> Self {
     Self {
       invoke_handler: Box::new(tauri::generate_handler![
@@ -244,8 +244,8 @@ impl<R: Runtime> Default for Store<R> {
   }
 }
 
-impl<R: Runtime> Store<R> {
-  pub fn with_stores<T: IntoIterator<Item = StoreFile>>(stores: T) -> Self {
+impl<R: Runtime> StorePlugin<R> {
+  pub fn with_stores<T: IntoIterator<Item = Store>>(stores: T) -> Self {
     Self {
       invoke_handler: Box::new(tauri::generate_handler![
         set, get, has, delete, clear, reset, keys, values, length, entries, load, save
@@ -260,7 +260,7 @@ impl<R: Runtime> Store<R> {
   }
 }
 
-impl<R: Runtime> Plugin<R> for Store<R> {
+impl<R: Runtime> Plugin<R> for StorePlugin<R> {
   fn name(&self) -> &'static str {
     "store"
   }

@@ -12,10 +12,10 @@ use std::{
 };
 use tauri::{AppHandle, Runtime};
 
-type SerializeFn = fn(&StoreFile) -> Result<Vec<u8>, Error>;
+type SerializeFn = fn(&Store) -> Result<Vec<u8>, Error>;
 type DeserializeFn = fn(&[u8]) -> Result<HashMap<String, JsonValue>, Error>;
 
-fn default_serialize(store: &StoreFile) -> Result<Vec<u8>, Error> {
+fn default_serialize(store: &Store) -> Result<Vec<u8>, Error> {
   Ok(bincode::serialize(&serde_json::to_string(&store.cache)?)?)
 }
 
@@ -25,7 +25,7 @@ fn default_deserialize(bytes: &[u8]) -> Result<HashMap<String, JsonValue>, Error
   )?)?)
 }
 
-pub struct StoreFileBuilder {
+pub struct StoreBuilder {
   path: PathBuf,
   defaults: Option<HashMap<String, JsonValue>>,
   cache: HashMap<String, JsonValue>,
@@ -33,7 +33,7 @@ pub struct StoreFileBuilder {
   deserialize: DeserializeFn,
 }
 
-impl StoreFileBuilder {
+impl StoreBuilder {
   pub fn new(path: PathBuf) -> Self {
     Self {
       path,
@@ -69,8 +69,8 @@ impl StoreFileBuilder {
     self
   }
 
-  pub fn build(&self) -> StoreFile {
-    StoreFile {
+  pub fn build(&self) -> Store {
+    Store {
       path: self.path.clone(),
       defaults: self.defaults.clone(),
       cache: self.cache.clone(),
@@ -81,7 +81,7 @@ impl StoreFileBuilder {
 }
 
 #[derive(Clone)]
-pub struct StoreFile {
+pub struct Store {
   pub(crate) path: PathBuf,
   pub(crate) defaults: Option<HashMap<String, JsonValue>>,
   pub(crate) cache: HashMap<String, JsonValue>,
@@ -89,7 +89,7 @@ pub struct StoreFile {
   deserialize: DeserializeFn,
 }
 
-impl StoreFile {
+impl Store {
   pub fn load<R: Runtime>(&mut self, app: &AppHandle<R>) -> Result<(), Error> {
     let app_dir = app
       .path_resolver()
