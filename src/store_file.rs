@@ -12,12 +12,25 @@ use std::{
 };
 use tauri::{AppHandle, Runtime};
 
+type SerializeFn = fn(&StoreFile) -> Result<Vec<u8>, Error>;
+type DeserializeFn = fn(&[u8]) -> Result<HashMap<String, JsonValue>, Error>;
+
+fn default_serialize(store: &StoreFile) -> Result<Vec<u8>, Error> {
+  Ok(bincode::serialize(&serde_json::to_string(&store.cache)?)?)
+}
+
+fn default_deserialize(bytes: &[u8]) -> Result<HashMap<String, JsonValue>, Error> {
+  Ok(serde_json::from_str(&bincode::deserialize::<String>(
+    bytes,
+  )?)?)
+}
+
 pub struct StoreFileBuilder {
   path: PathBuf,
   defaults: Option<HashMap<String, JsonValue>>,
   cache: HashMap<String, JsonValue>,
-  serialize: fn(&StoreFile) -> Result<Vec<u8>, Error>,
-  deserialize: fn(&Vec<u8>) -> Result<HashMap<String, JsonValue>, Error>,
+  serialize: SerializeFn,
+  deserialize: DeserializeFn,
 }
 
 impl StoreFileBuilder {
@@ -31,30 +44,27 @@ impl StoreFileBuilder {
     }
   }
 
-  pub fn defaults<'a>(&'a mut self, defaults: HashMap<String, JsonValue>) -> &'a mut Self {
+  pub fn defaults(&mut self, defaults: HashMap<String, JsonValue>) -> &mut Self {
     self.cache = defaults.clone();
     self.defaults = Some(defaults);
     self
   }
 
-  pub fn default<'a>(&'a mut self, key: String, value: JsonValue) -> &'a mut Self {
+  pub fn default(&mut self, key: String, value: JsonValue) -> &mut Self {
     self.cache.insert(key.clone(), value.clone());
-    self.defaults.get_or_insert(HashMap::new()).insert(key, value);
+    self
+      .defaults
+      .get_or_insert(HashMap::new())
+      .insert(key, value);
     self
   }
 
-  pub fn serialize<'a>(
-    &'a mut self,
-    serialize: fn(&StoreFile) -> Result<Vec<u8>, Error>,
-  ) -> &'a mut Self {
+  pub fn serialize(&mut self, serialize: SerializeFn) -> &mut Self {
     self.serialize = serialize;
     self
   }
 
-  pub fn deserialize<'a>(
-    &'a mut self,
-    deserialize: fn(&Vec<u8>) -> Result<HashMap<String, JsonValue>, Error>,
-  ) -> &'a mut Self {
+  pub fn deserialize(&mut self, deserialize: DeserializeFn) -> &mut Self {
     self.deserialize = deserialize;
     self
   }
@@ -70,23 +80,13 @@ impl StoreFileBuilder {
   }
 }
 
-fn default_serialize(store: &StoreFile) -> Result<Vec<u8>, Error> {
-  Ok(bincode::serialize(&serde_json::to_string(&store.cache)?)?)
-}
-
-fn default_deserialize(bytes: &Vec<u8>) -> Result<HashMap<String, JsonValue>, Error> {
-  Ok(serde_json::from_str(&bincode::deserialize::<String>(
-    &bytes,
-  )?)?)
-}
-
 #[derive(Clone)]
 pub struct StoreFile {
   pub(crate) path: PathBuf,
   pub(crate) defaults: Option<HashMap<String, JsonValue>>,
   pub(crate) cache: HashMap<String, JsonValue>,
-  serialize: fn(&StoreFile) -> Result<Vec<u8>, Error>,
-  deserialize: fn(&Vec<u8>) -> Result<HashMap<String, JsonValue>, Error>,
+  serialize: SerializeFn,
+  deserialize: DeserializeFn,
 }
 
 impl StoreFile {
@@ -113,7 +113,7 @@ impl StoreFile {
 
     create_dir_all(store_path.parent().expect("invalid store path"))?;
 
-    let bytes = (self.serialize)(&self)?;
+    let bytes = (self.serialize)(self)?;
     let mut f = File::create(&self.path)?;
     f.write_all(&bytes)?;
 
