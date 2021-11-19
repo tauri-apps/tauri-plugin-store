@@ -244,9 +244,9 @@ pub struct PluginBuilder {
 
 impl PluginBuilder {
   /// Registers a store with the plugin.
-  /// 
+  ///
   /// # Examples
-  /// 
+  ///
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
   /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
@@ -254,7 +254,7 @@ impl PluginBuilder {
   /// let store = StoreBuilder::new("store.bin".parse()?).build();
   ///
   /// let builder = PluginBuilder::default().store(store);
-  /// 
+  ///
   /// # Ok(())
   /// # }
   /// ```
@@ -264,9 +264,9 @@ impl PluginBuilder {
   }
 
   /// Registers multiple stores with the plugin.
-  /// 
+  ///
   /// # Examples
-  /// 
+  ///
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
   /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
@@ -274,7 +274,7 @@ impl PluginBuilder {
   /// let store = StoreBuilder::new("store.bin".parse()?).build();
   ///
   /// let builder = PluginBuilder::default().stores([store]);
-  /// 
+  ///
   /// # Ok(())
   /// # }
   /// ```
@@ -287,7 +287,7 @@ impl PluginBuilder {
   }
 
   /// Freezes the collection.
-  /// 
+  ///
   /// This causes requests for plugins that haven't been registered to fail
   ///
   /// # Examples
@@ -299,7 +299,7 @@ impl PluginBuilder {
   /// let store = StoreBuilder::new("store.bin".parse()?).build();
   ///
   /// let builder = PluginBuilder::default().freeze();
-  /// 
+  ///
   /// # Ok(())
   /// # }
   /// ```
@@ -309,18 +309,18 @@ impl PluginBuilder {
   }
 
   /// Builds the plugin.
-  /// 
+  ///
   /// # Examples
-  /// 
+  ///
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
   /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
   /// use tauri::Wry;
-  /// 
+  ///
   /// let store = StoreBuilder::new("store.bin".parse()?).build();
   ///
   /// let plugin = PluginBuilder::default().build::<Wry>();
-  /// 
+  ///
   /// # Ok(())
   /// # }
   /// ```
