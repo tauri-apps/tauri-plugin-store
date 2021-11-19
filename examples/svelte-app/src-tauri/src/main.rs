@@ -13,7 +13,7 @@ fn main() {
   tauri::Builder::default()
     .plugin(
       PluginBuilder::default()
-        .stores(vec![settings])
+        .stores([settings])
         .freeze()
         .build(),
     )

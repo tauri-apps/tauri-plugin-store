@@ -243,11 +243,41 @@ pub struct PluginBuilder {
 }
 
 impl PluginBuilder {
+  /// Registers a store with the plugin.
+  /// 
+  /// # Examples
+  /// 
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
+  ///
+  /// let store = StoreBuilder::new("store.bin".parse()?).build();
+  ///
+  /// let builder = PluginBuilder::default().store(store);
+  /// 
+  /// # Ok(())
+  /// # }
+  /// ```
   pub fn store(mut self, store: Store) -> Self {
     self.stores.insert(store.path.clone(), store);
     self
   }
 
+  /// Registers multiple stores with the plugin.
+  /// 
+  /// # Examples
+  /// 
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
+  ///
+  /// let store = StoreBuilder::new("store.bin".parse()?).build();
+  ///
+  /// let builder = PluginBuilder::default().stores([store]);
+  /// 
+  /// # Ok(())
+  /// # }
+  /// ```
   pub fn stores<T: IntoIterator<Item = Store>>(mut self, stores: T) -> Self {
     self.stores = stores
       .into_iter()
@@ -256,11 +286,44 @@ impl PluginBuilder {
     self
   }
 
+  /// Freezes the collection.
+  /// 
+  /// This causes requests for plugins that haven't been registered to fail
+  ///
+  /// # Examples
+  ///  
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
+  ///
+  /// let store = StoreBuilder::new("store.bin".parse()?).build();
+  ///
+  /// let builder = PluginBuilder::default().freeze();
+  /// 
+  /// # Ok(())
+  /// # }
+  /// ```
   pub fn freeze(mut self) -> Self {
     self.frozen = true;
     self
   }
 
+  /// Builds the plugin.
+  /// 
+  /// # Examples
+  /// 
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
+  /// use tauri::Wry;
+  /// 
+  /// let store = StoreBuilder::new("store.bin".parse()?).build();
+  ///
+  /// let plugin = PluginBuilder::default().build::<Wry>();
+  /// 
+  /// # Ok(())
+  /// # }
+  /// ```
   pub fn build<R: Runtime>(self) -> Plugin<R> {
     Plugin {
       invoke_handler: Box::new(tauri::generate_handler![
