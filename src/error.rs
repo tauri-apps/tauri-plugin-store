@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-License-Identifier: MIT
 
+use std::path::PathBuf;
+
 use serde::{Serialize, Serializer};
 
 /// The error types.
@@ -17,6 +19,9 @@ pub enum Error {
   /// IO error.
   #[error(transparent)]
   Io(#[from] std::io::Error),
+  /// Store not found
+  #[error("Store \"{0}\" not found")]
+  NotFound(PathBuf),
 }
 
 impl Serialize for Error {

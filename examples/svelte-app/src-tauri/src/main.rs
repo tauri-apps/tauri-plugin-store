@@ -3,7 +3,7 @@
   windows_subsystem = "windows"
 )]
 
-use tauri_plugin_store::{StoreBuilder, StorePlugin};
+use tauri_plugin_store::{StoreBuilder, PluginBuilder};
 
 fn main() {
   let settings = StoreBuilder::new(".settings".parse().unwrap())
@@ -11,7 +11,12 @@ fn main() {
     .build();
 
   tauri::Builder::default()
-    .plugin(StorePlugin::with_stores(vec![settings]))
+    .plugin(
+      PluginBuilder::default()
+        .stores(vec![settings])
+        .freeze()
+        .build(),
+    )
     .run(tauri::generate_context!())
     .expect("failed to run app");
 }
