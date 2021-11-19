@@ -7,7 +7,7 @@ use serde::Serialize;
 use serde_json::Value as JsonValue;
 use std::{collections::HashMap, path::PathBuf, sync::Mutex};
 pub use store::{Store, StoreBuilder};
-use tauri::{plugin::Plugin, AppHandle, Event, Invoke, Manager, Runtime, State, Window};
+use tauri::{plugin::Plugin as TauriPlugin, AppHandle, Event, Invoke, Manager, Runtime, State, Window};
 
 mod error;
 mod store;
@@ -260,7 +260,8 @@ impl<R: Runtime> StorePlugin<R> {
   }
 }
 
-impl<R: Runtime> Plugin<R> for StorePlugin<R> {
+pub struct Plugin<R: Runtime> {
+impl<R: Runtime> TauriPlugin<R> for Plugin<R> {
   fn name(&self) -> &'static str {
     "store"
   }
