@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Store from 'tauri-plugin-store-api'
+	import { Store } from 'tauri-plugin-store-api'
 
 	const key = 'the-key'
 	const store = new Store('.settings')

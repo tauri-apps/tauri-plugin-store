@@ -12,9 +12,11 @@
   "module": "webview-dist/index.mjs",
   "types": "webview-dist/index.d.ts",
   "scripts": {
-    "build": "rollup -c ./webview-src/rollup.config.js",
-    "prepublishOnly": "yarn build",
-    "pretest": "yarn build"
+    "build": "yarn build:api && yarn build:docs",
+    "build:api": "rollup -c ./webview-src/rollup.config.js",
+    "build:docs": "typedoc webview-src --out docs --tsconfig webview-src/tsconfig.json",
+    "prepublishOnly": "yarn build:api",
+    "pretest": "yarn build:api"
   },
   "license": "MIT",
   "devDependencies": {
@@ -23,6 +25,7 @@
     "rollup": "2.60.0",
     "rollup-plugin-terser": "7.0.2",
     "type-fest": "2.5.4",
+    "typedoc": "^0.22.9",
     "typescript": "4.5.2"
   },
   "dependencies": {

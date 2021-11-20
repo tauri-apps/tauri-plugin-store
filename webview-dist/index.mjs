@@ -2,6 +2,9 @@ import { invoke } from '@tauri-apps/api/tauri';
 import { appWindow } from '@tauri-apps/api/window';
 
 // Copyright 2021 Tauri Programme within The Commons Conservancy
+/**
+ * A key-value store persisted by the backend layer.
+ */
 class Store {
     constructor(path) {
         this.path = path;
@@ -143,6 +146,11 @@ class Store {
             path: this.path
         });
     }
+    /**
+     * Listen to changes on a store key.
+     * @param key
+     * @param cb
+     */
     onKeyChange(key, cb) {
         appWindow.listen('store://change', event => {
             if (event.payload.path === this.path && event.payload.key === key) {
@@ -150,6 +158,10 @@ class Store {
             }
         });
     }
+    /**
+     * Listen to changes on the store.
+     * @param cb
+     */
     onChange(cb) {
         appWindow.listen('store://change', event => {
             if (event.payload.path === this.path) {
@@ -159,4 +171,4 @@ class Store {
     }
 }
 
-export { Store as default };
+export { Store };

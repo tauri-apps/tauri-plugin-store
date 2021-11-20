@@ -70,7 +70,7 @@ yarn add github:tauri-apps/tauri-plugin-store#488558717b77d8a2bcb37acfd2eca9658a
 
 Use within your JS/TS:
 ```ts
-import Store from 'tauri-plugin-store-api'
+import { Store } from 'tauri-plugin-store-api'
 const store = new Store('.settings.dat')
 await store.set('some-key', { value: 5 })
 const val = await store.get('some-key')

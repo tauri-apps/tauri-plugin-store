@@ -1,4 +1,7 @@
-export default class Store {
+/**
+ * A key-value store persisted by the backend layer.
+ */
+export declare class Store {
     path: string;
     constructor(path: string);
     /**
@@ -85,6 +88,15 @@ export default class Store {
      * @returns
      */
     save(): Promise<void>;
+    /**
+     * Listen to changes on a store key.
+     * @param key
+     * @param cb
+     */
     onKeyChange<T>(key: string, cb: (value: T | null) => void): void;
+    /**
+     * Listen to changes on the store.
+     * @param cb
+     */
     onChange(cb: (key: string, value: unknown) => void): void;
 }

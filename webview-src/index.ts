@@ -11,7 +11,10 @@ interface ChangePayload<T> {
   value: T | null
 }
 
-export default class Store {
+/**
+ * A key-value store persisted by the backend layer.
+ */
+export class Store {
   path: string
   constructor(path: string) {
     this.path = path
@@ -105,7 +108,7 @@ export default class Store {
       path: this.path
     })
   }
-  
+
   /**
    * Returns a list of all values in the store.
    * 
@@ -166,6 +169,11 @@ export default class Store {
     })
   }
 
+  /**
+   * Listen to changes on a store key.
+   * @param key 
+   * @param cb 
+   */
   onKeyChange<T>(key: string, cb: (value: T | null) => void) {
     appWindow.listen<ChangePayload<T>>('store://change', event => {
       if (event.payload.path === this.path && event.payload.key === key) {
@@ -174,6 +182,10 @@ export default class Store {
     })
   }
 
+  /**
+   * Listen to changes on the store.
+   * @param cb 
+   */
   onChange(cb: (key: string, value: unknown) => void) {
     appWindow.listen<ChangePayload<unknown>>('store://change', event => {
       if (event.payload.path === this.path) {
