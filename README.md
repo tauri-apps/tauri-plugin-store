@@ -1,4 +1,5 @@
 # Tauri Plugin Store
+[![devto](https://img.shields.io/badge/documentation-github.io-purple.svg)](https://tauri-apps.github.io/tauri-plugin-store)
 ![Test](https://github.com/tauri-apps/tauri-plugin-store/workflows/Test/badge.svg)
 
 This plugin provides an interface for storing unencrypted values on the application cache folder.
