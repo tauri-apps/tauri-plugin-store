@@ -193,7 +193,7 @@ impl Store {
     create_dir_all(store_path.parent().expect("invalid store path"))?;
 
     let bytes = (self.serialize)(&self.cache)?;
-    let mut f = File::create(&self.path)?;
+    let mut f = File::create(&store_path)?;
     f.write_all(&bytes)?;
 
     Ok(())
