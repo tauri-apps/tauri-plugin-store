@@ -7,7 +7,9 @@ use serde::Serialize;
 use serde_json::Value as JsonValue;
 use std::{collections::HashMap, path::PathBuf, sync::Mutex};
 pub use store::{Store, StoreBuilder};
-use tauri::{plugin::Plugin, AppHandle, Event, Invoke, Manager, Runtime, State, Window};
+use tauri::{
+  plugin::Plugin as TauriPlugin, AppHandle, Event, Invoke, Manager, Runtime, State, Window,
+};
 
 mod error;
 mod store;
@@ -20,17 +22,23 @@ struct ChangePayload {
 }
 
 #[derive(Default)]
-struct StoreCollection(Mutex<HashMap<PathBuf, Store>>);
+struct StoreCollection {
+  stores: Mutex<HashMap<PathBuf, Store>>,
+  frozen: bool,
+}
 
 fn with_store<R: Runtime, T, F: FnOnce(&mut Store) -> Result<T, Error>>(
   app: &AppHandle<R>,
-  stores: State<'_, StoreCollection>,
+  collection: State<'_, StoreCollection>,
   path: PathBuf,
   f: F,
 ) -> Result<T, Error> {
-  let mut stores = stores.0.lock().expect("mutex poisoned");
+  let mut stores = collection.stores.lock().expect("mutex poisoned");
 
   if !stores.contains_key(&path) {
+    if collection.frozen {
+      return Err(Error::NotFound(path));
+    }
     let mut store = StoreBuilder::new(path.clone()).build();
     // ignore loading errors, just use the default
     let _ = store.load(app);
@@ -134,18 +142,18 @@ async fn clear<R: Runtime>(
 async fn reset<R: Runtime>(
   app: AppHandle<R>,
   window: Window<R>,
-  stores: State<'_, StoreCollection>,
+  collection: State<'_, StoreCollection>,
   path: PathBuf,
 ) -> Result<(), Error> {
-  let has_defaults = stores
-    .0
+  let has_defaults = collection
+    .stores
     .lock()
     .expect("mutex poisoned")
     .get(&path)
     .map(|store| store.defaults.is_some());
 
   if Some(true) == has_defaults {
-    with_store(&app, stores, path.clone(), |store| {
+    with_store(&app, collection, path.clone(), |store| {
       if let Some(defaults) = &store.defaults {
         for (key, value) in &store.cache {
           if defaults.get(key) != Some(value) {
@@ -164,7 +172,7 @@ async fn reset<R: Runtime>(
       Ok(())
     })
   } else {
-    clear(app, window, stores, path).await
+    clear(app, window, collection, path).await
   }
 }
 
@@ -228,39 +236,112 @@ async fn save<R: Runtime>(
   with_store(&app, stores, path, |store| store.save(&app))
 }
 
-pub struct StorePlugin<R: Runtime> {
+#[derive(Default)]
+pub struct PluginBuilder {
+  stores: HashMap<PathBuf, Store>,
+  frozen: bool,
+}
+
+impl PluginBuilder {
+  /// Registers a store with the plugin.
+  ///
+  /// # Examples
+  ///
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
+  ///
+  /// let store = StoreBuilder::new("store.bin".parse()?).build();
+  ///
+  /// let builder = PluginBuilder::default().store(store);
+  ///
+  /// # Ok(())
+  /// # }
+  /// ```
+  pub fn store(mut self, store: Store) -> Self {
+    self.stores.insert(store.path.clone(), store);
+    self
+  }
+
+  /// Registers multiple stores with the plugin.
+  ///
+  /// # Examples
+  ///
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
+  ///
+  /// let store = StoreBuilder::new("store.bin".parse()?).build();
+  ///
+  /// let builder = PluginBuilder::default().stores([store]);
+  ///
+  /// # Ok(())
+  /// # }
+  /// ```
+  pub fn stores<T: IntoIterator<Item = Store>>(mut self, stores: T) -> Self {
+    self.stores = stores
+      .into_iter()
+      .map(|store| (store.path.clone(), store))
+      .collect();
+    self
+  }
+
+  /// Freezes the collection.
+  ///
+  /// This causes requests for plugins that haven't been registered to fail
+  ///
+  /// # Examples
+  ///  
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
+  ///
+  /// let store = StoreBuilder::new("store.bin".parse()?).build();
+  ///
+  /// let builder = PluginBuilder::default().freeze();
+  ///
+  /// # Ok(())
+  /// # }
+  /// ```
+  pub fn freeze(mut self) -> Self {
+    self.frozen = true;
+    self
+  }
+
+  /// Builds the plugin.
+  ///
+  /// # Examples
+  ///
+  /// ```
+  /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+  /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
+  /// use tauri::Wry;
+  ///
+  /// let store = StoreBuilder::new("store.bin".parse()?).build();
+  ///
+  /// let plugin = PluginBuilder::default().build::<Wry>();
+  ///
+  /// # Ok(())
+  /// # }
+  /// ```
+  pub fn build<R: Runtime>(self) -> Plugin<R> {
+    Plugin {
+      invoke_handler: Box::new(tauri::generate_handler![
+        set, get, has, delete, clear, reset, keys, values, length, entries, load, save
+      ]),
+      stores: self.stores,
+      frozen: self.frozen,
+    }
+  }
+}
+
+pub struct Plugin<R: Runtime> {
   invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync>,
-  stores: Option<HashMap<PathBuf, Store>>,
+  stores: HashMap<PathBuf, Store>,
+  frozen: bool,
 }
 
-impl<R: Runtime> Default for StorePlugin<R> {
-  fn default() -> Self {
-    Self {
-      invoke_handler: Box::new(tauri::generate_handler![
-        set, get, has, delete, clear, reset, keys, values, length, entries, load, save
-      ]),
-      stores: None,
-    }
-  }
-}
-
-impl<R: Runtime> StorePlugin<R> {
-  pub fn with_stores<T: IntoIterator<Item = Store>>(stores: T) -> Self {
-    Self {
-      invoke_handler: Box::new(tauri::generate_handler![
-        set, get, has, delete, clear, reset, keys, values, length, entries, load, save
-      ]),
-      stores: Some(
-        stores
-          .into_iter()
-          .map(|store| (store.path.clone(), store))
-          .collect(),
-      ),
-    }
-  }
-}
-
-impl<R: Runtime> Plugin<R> for StorePlugin<R> {
+impl<R: Runtime> TauriPlugin<R> for Plugin<R> {
   fn name(&self) -> &'static str {
     "store"
   }
@@ -270,17 +351,18 @@ impl<R: Runtime> Plugin<R> for StorePlugin<R> {
   }
 
   fn initialize(&mut self, app: &AppHandle<R>, _: JsonValue) -> tauri::plugin::Result<()> {
-    app.manage(StoreCollection(Mutex::new(
-      self.stores.clone().unwrap_or_default(),
-    )));
+    app.manage(StoreCollection {
+      stores: Mutex::new(self.stores.clone()),
+      frozen: self.frozen,
+    });
     Ok(())
   }
 
   fn on_event(&mut self, app: &AppHandle<R>, event: &tauri::Event) {
     if let Event::Exit = event {
-      let stores = app.state::<StoreCollection>();
+      let collection = app.state::<StoreCollection>();
 
-      for store in stores.0.lock().expect("mutex poisoned").values() {
+      for store in collection.stores.lock().expect("mutex poisoned").values() {
         if let Err(err) = store.save(app) {
           eprintln!("failed to save store {:?} with error {:?}", store.path, err);
         }

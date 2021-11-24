@@ -20,6 +20,11 @@
 			.then(_updateResponse)
 			.catch(_updateResponse)
 	}
+
+	function set_broken() {
+		const brokenStore = new Store('broken')
+		brokenStore.set('foo', 'bar')
+	}
 </script>
 
 <style>
@@ -27,7 +32,9 @@
 		background: #fff;
 	}
 </style>
-
+<div>
+	<button on:click="{set_broken}">Broken</button>
+</div>
 <div>
 	<input placeholder="The value to store" bind:value={record}>
 	<button on:click="{set}">Set</button>
