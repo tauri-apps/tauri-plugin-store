@@ -11,6 +11,13 @@
   "browser": "webview-dist/index.min.js",
   "module": "webview-dist/index.mjs",
   "types": "webview-dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./webview-dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build": "yarn build:api && yarn build:docs",
     "build:api": "rollup -c ./webview-src/rollup.config.js",

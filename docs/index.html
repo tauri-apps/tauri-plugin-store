@@ -2,7 +2,8 @@
 <a href="#tauri-plugin-store" id="tauri-plugin-store" style="color: inherit; text-decoration: none;">
   <h1>Tauri Plugin Store</h1>
 </a>
-<p><img src="https://github.com/tauri-apps/tauri-plugin-store/workflows/Test/badge.svg" alt="Test"></p>
+<p><a href="https://tauri-apps.github.io/tauri-plugin-store"><img src="https://img.shields.io/badge/documentation-github.io-purple.svg" alt="devto"></a>
+<img src="https://github.com/tauri-apps/tauri-plugin-store/workflows/Test/badge.svg" alt="Test"></p>
 <p>This plugin provides an interface for storing unencrypted values on the application cache folder.</p>
 
 <a href="#architecture" id="architecture" style="color: inherit; text-decoration: none;">
@@ -48,7 +49,7 @@
 <pre><code class="language-yaml"><span class="hl-0">[</span><span class="hl-1">dependencies.tauri-plugin-store</span><span class="hl-0">]</span><br/><span class="hl-1">git = &quot;https://github.com/tauri-apps/tauri-plugin-store&quot;</span><br/><span class="hl-1">tag = &quot;v0.1.0&quot;</span><br/><span class="hl-2">#branch = &quot;main&quot;</span>
 </code></pre>
 <p>Use in <code>src-tauri/src/main.rs</code>:</p>
-<pre><code class="language-rust"><span class="hl-3">use</span><span class="hl-0"> </span><span class="hl-4">tauri_plugin_store</span><span class="hl-0">::</span><span class="hl-4">StorePlugin</span><span class="hl-0">;</span><br/><br/><span class="hl-3">fn</span><span class="hl-0"> </span><span class="hl-5">main</span><span class="hl-0">() {</span><br/><span class="hl-0">    </span><span class="hl-4">tauri</span><span class="hl-0">::</span><span class="hl-4">Builder</span><span class="hl-0">::</span><span class="hl-5">default</span><span class="hl-0">()</span><br/><span class="hl-0">        .</span><span class="hl-5">plugin</span><span class="hl-0">(</span><span class="hl-4">StorePlugin</span><span class="hl-0">::</span><span class="hl-5">default</span><span class="hl-0">())</span><br/><span class="hl-0">        .</span><span class="hl-5">build</span><span class="hl-0">()</span><br/><span class="hl-0">        .</span><span class="hl-5">run</span><span class="hl-0">();</span><br/><span class="hl-0">}</span>
+<pre><code class="language-rust"><span class="hl-3">use</span><span class="hl-0"> </span><span class="hl-4">tauri_plugin_store</span><span class="hl-0">::</span><span class="hl-4">PluginBuilder</span><span class="hl-0">;</span><br/><br/><span class="hl-3">fn</span><span class="hl-0"> </span><span class="hl-5">main</span><span class="hl-0">() {</span><br/><span class="hl-0">    </span><span class="hl-4">tauri</span><span class="hl-0">::</span><span class="hl-4">Builder</span><span class="hl-0">::</span><span class="hl-5">default</span><span class="hl-0">()</span><br/><span class="hl-0">        .</span><span class="hl-5">plugin</span><span class="hl-0">(</span><span class="hl-4">PluginBuilder</span><span class="hl-0">::</span><span class="hl-5">default</span><span class="hl-0">())</span><br/><span class="hl-0">        .</span><span class="hl-5">build</span><span class="hl-0">()</span><br/><span class="hl-0">        .</span><span class="hl-5">run</span><span class="hl-0">();</span><br/><span class="hl-0">}</span>
 </code></pre>
 
 <a href="#webview" id="webview" style="color: inherit; text-decoration: none;">
