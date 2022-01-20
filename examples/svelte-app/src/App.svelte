@@ -27,11 +27,6 @@
 	}
 </script>
 
-<style>
-	html {
-		background: #fff;
-	}
-</style>
 <div>
 	<button on:click="{set_broken}">Broken</button>
 </div>
