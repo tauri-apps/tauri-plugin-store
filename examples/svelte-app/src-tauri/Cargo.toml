@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A Tauri App"
 authors = [ "Tauri Programme within The Commons Conservancy" ]
 repository = ""
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 serde_json = "1.0"
