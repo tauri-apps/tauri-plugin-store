@@ -3,7 +3,7 @@ name = "tauri-plugin-store"
 version = "0.0.0"
 authors = [ "Tauri Programme within The Commons Conservancy" ]
 description = "A Tauri plugin for simple data persistency"
-edition = "2018"
+edition = "2021"
 exclude = ["/examples", "/webview-dist", "/webview-src", "node_modules"]
 license = "Apache-2.0 OR MIT"
 
