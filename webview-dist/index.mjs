@@ -20,7 +20,7 @@ class Store {
         return invoke('plugin:store|set', {
             path: this.path,
             key,
-            value
+            value,
         });
     }
     /**
@@ -32,7 +32,7 @@ class Store {
     get(key) {
         return invoke('plugin:store|get', {
             path: this.path,
-            key
+            key,
         });
     }
     /**
@@ -44,7 +44,7 @@ class Store {
     has(key) {
         return invoke('plugin:store|has', {
             path: this.path,
-            key
+            key,
         });
     }
     /**
@@ -56,7 +56,7 @@ class Store {
     delete(key) {
         return invoke('plugin:store|delete', {
             path: this.path,
-            key
+            key,
         });
     }
     /**
@@ -67,7 +67,7 @@ class Store {
      */
     clear() {
         return invoke('plugin:store|clear', {
-            path: this.path
+            path: this.path,
         });
     }
     /**
@@ -78,7 +78,7 @@ class Store {
      */
     reset() {
         return invoke('plugin:store|reset', {
-            path: this.path
+            path: this.path,
         });
     }
     /**
@@ -88,7 +88,7 @@ class Store {
      */
     keys() {
         return invoke('plugin:store|keys', {
-            path: this.path
+            path: this.path,
         });
     }
     /**
@@ -98,7 +98,7 @@ class Store {
      */
     values() {
         return invoke('plugin:store|values', {
-            path: this.path
+            path: this.path,
         });
     }
     /**
@@ -108,7 +108,7 @@ class Store {
      */
     entries() {
         return invoke('plugin:store|entries', {
-            path: this.path
+            path: this.path,
         });
     }
     /**
@@ -118,7 +118,7 @@ class Store {
      */
     length() {
         return invoke('plugin:store|length', {
-            path: this.path
+            path: this.path,
         });
     }
     /**
@@ -131,7 +131,7 @@ class Store {
      */
     load() {
         return invoke('plugin:store|load', {
-            path: this.path
+            path: this.path,
         });
     }
     /**
@@ -143,7 +143,7 @@ class Store {
      */
     save() {
         return invoke('plugin:store|save', {
-            path: this.path
+            path: this.path,
         });
     }
     /**

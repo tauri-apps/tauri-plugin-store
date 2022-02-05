@@ -8,7 +8,7 @@ use serde_json::Value as JsonValue;
 use std::{collections::HashMap, path::PathBuf, sync::Mutex};
 pub use store::{Store, StoreBuilder};
 use tauri::{
-  plugin::Plugin as TauriPlugin, AppHandle, Event, Invoke, Manager, Runtime, State, Window,
+  plugin::Plugin as TauriPlugin, AppHandle, Invoke, Manager, RunEvent, Runtime, State, Window,
 };
 
 mod error;
@@ -291,7 +291,7 @@ impl PluginBuilder {
   /// This causes requests for plugins that haven't been registered to fail
   ///
   /// # Examples
-  ///  
+  ///
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
   /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
@@ -358,8 +358,8 @@ impl<R: Runtime> TauriPlugin<R> for Plugin<R> {
     Ok(())
   }
 
-  fn on_event(&mut self, app: &AppHandle<R>, event: &tauri::Event) {
-    if let Event::Exit = event {
+  fn on_event(&mut self, app: &AppHandle<R>, event: &tauri::RunEvent) {
+    if let RunEvent::Exit = event {
       let collection = app.state::<StoreCollection>();
 
       for store in collection.stores.lock().expect("mutex poisoned").values() {
