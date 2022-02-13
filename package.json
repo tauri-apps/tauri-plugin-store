@@ -1,41 +1,41 @@
 {
-  "name": "tauri-plugin-store-api",
-  "version": "0.1.0",
-  "authors": [
-    "Tauri Programme within The Commons Conservancy"
-  ],
-  "description": "API wrapper for the Tauri Plugin for simple data persistence",
-  "type": "module",
-  "browser": "webview-dist/index.min.js",
-  "types": "webview-dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./webview-dist/index.mjs"
+    "name": "tauri-plugin-store-api",
+    "version": "0.1.0",
+    "authors": [
+        "Tauri Programme within The Commons Conservancy"
+    ],
+    "description": "API wrapper for the Tauri Plugin for simple data persistence",
+    "type": "module",
+    "browser": "webview-dist/index.min.js",
+    "types": "webview-dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./webview-dist/index.mjs"
+        },
+        "./package.json": "./package.json"
     },
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "webview-dist"
-  ],
-  "scripts": {
-    "build": "yarn build:api && yarn build:docs",
-    "build:api": "rollup -c ./webview-src/rollup.config.js",
-    "build:docs": "typedoc webview-src --out docs --tsconfig webview-src/tsconfig.json",
-    "prepublishOnly": "yarn build:api",
-    "pretest": "yarn build:api"
-  },
-  "license": "MIT",
-  "devDependencies": {
-    "@rollup/plugin-node-resolve": "13.1.3",
-    "@rollup/plugin-typescript": "8.3.0",
-    "rollup": "2.67.2",
-    "rollup-plugin-terser": "7.0.2",
-    "type-fest": "2.11.2",
-    "typedoc": "0.22.11",
-    "typescript": "4.5.5"
-  },
-  "dependencies": {
-    "@tauri-apps/api": "1.0.0-beta.8",
-    "tslib": "2.3.1"
-  }
+    "files": [
+        "webview-dist"
+    ],
+    "scripts": {
+        "build": "yarn build:api && yarn build:docs",
+        "build:api": "rollup -c ./webview-src/rollup.config.js",
+        "build:docs": "typedoc webview-src --out docs --tsconfig webview-src/tsconfig.json",
+        "prepublishOnly": "yarn build:api",
+        "pretest": "yarn build:api"
+    },
+    "license": "MIT",
+    "devDependencies": {
+        "@rollup/plugin-node-resolve": "13.1.3",
+        "@rollup/plugin-typescript": "8.3.0",
+        "rollup": "2.67.2",
+        "rollup-plugin-terser": "7.0.2",
+        "type-fest": "2.11.2",
+        "typedoc": "0.22.11",
+        "typescript": "4.5.5"
+    },
+    "dependencies": {
+        "@tauri-apps/api": "1.0.0-rc.0",
+        "tslib": "2.3.1"
+    }
 }

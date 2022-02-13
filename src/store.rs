@@ -58,7 +58,7 @@ impl StoreBuilder {
   }
 
   /// Inserts a default key-value pair.
-  ///   
+  ///
   /// # Examples
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
