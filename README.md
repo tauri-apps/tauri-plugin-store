@@ -49,11 +49,11 @@ tag = "v0.1.0"
 Use in `src-tauri/src/main.rs`:
 
 ```rust
-use tauri_plugin_store::PluginBuilder;
+use tauri_plugin_store::Builder;
 
 fn main() {
     tauri::Builder::default()
-        .plugin(PluginBuilder::default().build())
+        .plugin(Builder::default().build())
         .build()
         .run();
 }

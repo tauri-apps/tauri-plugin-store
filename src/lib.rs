@@ -9,7 +9,7 @@ use std::{collections::HashMap, path::PathBuf, sync::Mutex};
 pub use store::{Store, StoreBuilder};
 use tauri::{
   plugin::{Builder as PluginBuilder, TauriPlugin},
-  AppHandle, Invoke, Manager, RunEvent, Runtime, State, Window,
+  AppHandle, Manager, RunEvent, Runtime, State, Window,
 };
 
 mod error;
@@ -330,7 +330,7 @@ impl PluginBuilder {
       .invoke_handler(tauri::generate_handler![
         set, get, has, delete, clear, reset, keys, values, length, entries, load, save
       ])
-      .setup(|app_handle| {
+      .setup(move |app_handle| {
         app_handle.manage(StoreCollection {
           stores: Mutex::new(self.stores.clone()),
           frozen: self.frozen,
@@ -340,10 +340,10 @@ impl PluginBuilder {
       })
       .on_event(|app_handle, event| {
         if let RunEvent::Exit = event {
-          let collection = app.state::<StoreCollection>();
-    
+          let collection = app_handle.state::<StoreCollection>();
+
           for store in collection.stores.lock().expect("mutex poisoned").values() {
-            if let Err(err) = store.save(app) {
+            if let Err(err) = store.save(app_handle) {
               eprintln!("failed to save store {:?} with error {:?}", store.path, err);
             }
           }
