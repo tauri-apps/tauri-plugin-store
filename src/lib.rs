@@ -8,7 +8,8 @@ use serde_json::Value as JsonValue;
 use std::{collections::HashMap, path::PathBuf, sync::Mutex};
 pub use store::{Store, StoreBuilder};
 use tauri::{
-  plugin::Plugin as TauriPlugin, AppHandle, Invoke, Manager, RunEvent, Runtime, State, Window,
+  plugin::{Builder as PluginBuilder, TauriPlugin},
+  AppHandle, Invoke, Manager, RunEvent, Runtime, State, Window,
 };
 
 mod error;
@@ -324,49 +325,30 @@ impl PluginBuilder {
   /// # Ok(())
   /// # }
   /// ```
-  pub fn build<R: Runtime>(self) -> Plugin<R> {
-    Plugin {
-      invoke_handler: Box::new(tauri::generate_handler![
+  pub fn build<R: Runtime>(self) -> TauriPlugin<R> {
+    PluginBuilder::new("store")
+      .invoke_handler(tauri::generate_handler![
         set, get, has, delete, clear, reset, keys, values, length, entries, load, save
-      ]),
-      stores: self.stores,
-      frozen: self.frozen,
-    }
-  }
-}
+      ])
+      .setup(|app_handle| {
+        app_handle.manage(StoreCollection {
+          stores: Mutex::new(self.stores.clone()),
+          frozen: self.frozen,
+        });
 
-pub struct Plugin<R: Runtime> {
-  invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync>,
-  stores: HashMap<PathBuf, Store>,
-  frozen: bool,
-}
-
-impl<R: Runtime> TauriPlugin<R> for Plugin<R> {
-  fn name(&self) -> &'static str {
-    "store"
-  }
-
-  fn extend_api(&mut self, message: Invoke<R>) {
-    (self.invoke_handler)(message)
-  }
-
-  fn initialize(&mut self, app: &AppHandle<R>, _: JsonValue) -> tauri::plugin::Result<()> {
-    app.manage(StoreCollection {
-      stores: Mutex::new(self.stores.clone()),
-      frozen: self.frozen,
-    });
-    Ok(())
-  }
-
-  fn on_event(&mut self, app: &AppHandle<R>, event: &tauri::RunEvent) {
-    if let RunEvent::Exit = event {
-      let collection = app.state::<StoreCollection>();
-
-      for store in collection.stores.lock().expect("mutex poisoned").values() {
-        if let Err(err) = store.save(app) {
-          eprintln!("failed to save store {:?} with error {:?}", store.path, err);
+        Ok(())
+      })
+      .on_event(|app_handle, event| {
+        if let RunEvent::Exit = event {
+          let collection = app.state::<StoreCollection>();
+    
+          for store in collection.stores.lock().expect("mutex poisoned").values() {
+            if let Err(err) = store.save(app) {
+              eprintln!("failed to save store {:?} with error {:?}", store.path, err);
+            }
+          }
         }
-      }
-    }
+      })
+      .build()
   }
 }
