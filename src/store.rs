@@ -12,17 +12,19 @@ use std::{
 };
 use tauri::{AppHandle, Runtime};
 
-type SerializeFn = fn(&HashMap<String, JsonValue>) -> Result<Vec<u8>, Error>;
-type DeserializeFn = fn(&[u8]) -> Result<HashMap<String, JsonValue>, Error>;
+type SerializeFn = fn(&HashMap<String, JsonValue>) -> Result<Vec<u8>, Box<dyn std::error::Error>>;
+type DeserializeFn = fn(&[u8]) -> Result<HashMap<String, JsonValue>, Box<dyn std::error::Error>>;
 
-fn default_serialize(cache: &HashMap<String, JsonValue>) -> Result<Vec<u8>, Error> {
-  Ok(bincode::serialize(&serde_json::to_string(&cache)?)?)
+fn default_serialize(
+  cache: &HashMap<String, JsonValue>,
+) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+  Ok(bincode::serialize(&cache)?)
 }
 
-fn default_deserialize(bytes: &[u8]) -> Result<HashMap<String, JsonValue>, Error> {
-  Ok(serde_json::from_str(&bincode::deserialize::<String>(
-    bytes,
-  )?)?)
+fn default_deserialize(
+  bytes: &[u8],
+) -> Result<HashMap<String, JsonValue>, Box<dyn std::error::Error>> {
+  bincode::deserialize(bytes).map_err(Into::into)
 }
 
 /// Builds a [`Store`]
@@ -177,7 +179,7 @@ impl Store {
 
     let bytes = read(&store_path)?;
 
-    self.cache = (self.deserialize)(&bytes)?;
+    self.cache = (self.deserialize)(&bytes).map_err(Error::Deserialize)?;
 
     Ok(())
   }
@@ -192,7 +194,7 @@ impl Store {
 
     create_dir_all(store_path.parent().expect("invalid store path"))?;
 
-    let bytes = (self.serialize)(&self.cache)?;
+    let bytes = (self.serialize)(&self.cache).map_err(Error::Serialize)?;
     let mut f = File::create(&store_path)?;
     f.write_all(&bytes)?;
 
