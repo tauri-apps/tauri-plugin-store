@@ -3,13 +3,13 @@ name: Format
 on:
   push:
     branches:
-      - main
+      - dev
     paths:
       - '.github/workflows/format.yml'
       - 'src/**'
   pull_request:
     branches:
-      - main
+      - dev
     paths:
       - '.github/workflows/format.yml'
       - 'src/**'

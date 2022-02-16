@@ -5,19 +5,19 @@ on:
     - cron: '0 0 * * *'
   push:
     branches:
-      - main
+      - dev
     paths:
       - "**/Cargo.lock"
       - "**/Cargo.toml"
   pull_request:
     branches:
-      - main
+      - dev
     paths:
       - "**/Cargo.lock"
       - "**/Cargo.toml"
 
 jobs:
-  audit:
+  audit-rust:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

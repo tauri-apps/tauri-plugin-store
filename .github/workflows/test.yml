@@ -3,15 +3,16 @@ name: Test
 on:
   push:
     branches:
-      - main
+      - dev
+    paths:
+      - '.github/workflows/test.yml'
+      - 'src/**'
   pull_request:
     branches:
-      - main
       - dev
-    paths-ignore:
-      - 'webview-src/**'
-      - 'webview-dist/**'
-      - 'examples/**'
+    paths:
+      - '.github/workflows/test.yml'
+      - 'src/**'
 
 jobs:
   build-and-test:
@@ -37,7 +38,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y webkit2gtk-4.0
-
       - name: Run tests 
         uses: actions-rs/cargo@v1
         with:
