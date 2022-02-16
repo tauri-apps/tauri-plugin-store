@@ -250,11 +250,11 @@ impl Builder {
   ///
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-  /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
+  /// use tauri_plugin_store::{StoreBuilder, Builder};
   ///
   /// let store = StoreBuilder::new("store.bin".parse()?).build();
   ///
-  /// let builder = PluginBuilder::default().store(store);
+  /// let builder = Builder::default().store(store);
   ///
   /// # Ok(())
   /// # }
@@ -270,11 +270,11 @@ impl Builder {
   ///
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-  /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
+  /// use tauri_plugin_store::{StoreBuilder, Builder};
   ///
   /// let store = StoreBuilder::new("store.bin".parse()?).build();
   ///
-  /// let builder = PluginBuilder::default().stores([store]);
+  /// let builder = Builder::default().stores([store]);
   ///
   /// # Ok(())
   /// # }
@@ -295,11 +295,11 @@ impl Builder {
   ///
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-  /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
+  /// use tauri_plugin_store::{StoreBuilder, Builder};
   ///
   /// let store = StoreBuilder::new("store.bin".parse()?).build();
   ///
-  /// let builder = PluginBuilder::default().freeze();
+  /// let builder = Builder::default().freeze();
   ///
   /// # Ok(())
   /// # }
@@ -315,12 +315,12 @@ impl Builder {
   ///
   /// ```
   /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
-  /// use tauri_plugin_store::{StoreBuilder,PluginBuilder};
+  /// use tauri_plugin_store::{StoreBuilder, Builder};
   /// use tauri::Wry;
   ///
   /// let store = StoreBuilder::new("store.bin".parse()?).build();
   ///
-  /// let plugin = PluginBuilder::default().build::<Wry>();
+  /// let plugin = Builder::default().build::<Wry>();
   ///
   /// # Ok(())
   /// # }
