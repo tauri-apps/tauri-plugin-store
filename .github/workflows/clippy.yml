@@ -4,23 +4,23 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '.github/workflows/lint.yml'
+      - 'src/**'
   pull_request:
     branches:
       - main
-      - dev
+    paths:
+      - '.github/workflows/lint.yml'
+      - 'src/**'
 
 jobs:
   clippy:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
 
     steps:
       - uses: actions/checkout@v2
-      - name: install webkit2gtk
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y webkit2gtk-4.0
+
       - name: Install clippy with stable toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -28,6 +28,14 @@ jobs:
             toolchain: stable
             override: true
             components: clippy
+
+      - uses: Swatinem/rust-cache@v1
+
+      - name: install webkit2gtk
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y webkit2gtk-4.0
+          
       - uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
