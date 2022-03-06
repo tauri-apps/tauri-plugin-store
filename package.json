@@ -31,7 +31,7 @@
         "rollup": "2.68.0",
         "rollup-plugin-terser": "7.0.2",
         "type-fest": "2.12.0",
-        "typedoc": "0.22.12",
+        "typedoc": "0.22.13",
         "typescript": "4.5.5"
     },
     "dependencies": {
