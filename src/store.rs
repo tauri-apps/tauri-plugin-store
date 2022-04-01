@@ -18,13 +18,13 @@ type DeserializeFn = fn(&[u8]) -> Result<HashMap<String, JsonValue>, Box<dyn std
 fn default_serialize(
   cache: &HashMap<String, JsonValue>,
 ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-  Ok(bincode::serialize(&cache)?)
+  Ok(serde_json::to_vec(&cache)?)
 }
 
 fn default_deserialize(
   bytes: &[u8],
 ) -> Result<HashMap<String, JsonValue>, Box<dyn std::error::Error>> {
-  bincode::deserialize(bytes).map_err(Into::into)
+  serde_json::from_slice(bytes).map_err(Into::into)
 }
 
 /// Builds a [`Store`]
