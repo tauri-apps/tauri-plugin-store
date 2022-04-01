@@ -13,8 +13,8 @@ edition = "2021"
 tauri-build = { version = "1.0.0-rc.5", features = [] }
 
 [dependencies]
-serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.79"
+serde = { version = "1.0.136", features = ["derive"] }
 tauri = { version = "1.0.0-rc.6", features = ["api-all"] }
 tauri-plugin-store = { path = "../../../" }
 

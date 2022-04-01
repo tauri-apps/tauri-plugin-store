@@ -201,3 +201,13 @@ impl Store {
     Ok(())
   }
 }
+
+impl std::fmt::Debug for Store {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.debug_struct("Store")
+      .field("path", &self.path)
+      .field("defaults", &self.defaults)
+      .field("cache", &self.cache)
+      .finish()
+  }
+}

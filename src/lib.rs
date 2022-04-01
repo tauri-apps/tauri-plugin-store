@@ -3,12 +3,14 @@
 // SPDX-License-Identifier: MIT
 
 pub use error::Error;
+use log::error;
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 use std::{collections::HashMap, path::PathBuf, sync::Mutex};
 pub use store::{Store, StoreBuilder};
 use tauri::{
-  plugin::Plugin as TauriPlugin, AppHandle, Invoke, Manager, RunEvent, Runtime, State, Window,
+  plugin::{self, TauriPlugin},
+  AppHandle, Manager, RunEvent, Runtime, State, Window,
 };
 
 mod error;
@@ -41,7 +43,12 @@ fn with_store<R: Runtime, T, F: FnOnce(&mut Store) -> Result<T, Error>>(
     }
     let mut store = StoreBuilder::new(path.clone()).build();
     // ignore loading errors, just use the default
-    let _ = store.load(app);
+    if let Err(err) = store.load(app) {
+      error!(
+        "Failed to load store {:?} from disk: {}. Falling back to default values.",
+        path, err
+      );
+    }
     stores.insert(path.clone(), store);
   }
 
@@ -324,49 +331,40 @@ impl PluginBuilder {
   /// # Ok(())
   /// # }
   /// ```
-  pub fn build<R: Runtime>(self) -> Plugin<R> {
-    Plugin {
-      invoke_handler: Box::new(tauri::generate_handler![
+  pub fn build<R: Runtime>(mut self) -> TauriPlugin<R> {
+    plugin::Builder::new("store")
+      .invoke_handler(tauri::generate_handler![
         set, get, has, delete, clear, reset, keys, values, length, entries, load, save
-      ]),
-      stores: self.stores,
-      frozen: self.frozen,
-    }
-  }
-}
-
-pub struct Plugin<R: Runtime> {
-  invoke_handler: Box<dyn Fn(Invoke<R>) + Send + Sync>,
-  stores: HashMap<PathBuf, Store>,
-  frozen: bool,
-}
-
-impl<R: Runtime> TauriPlugin<R> for Plugin<R> {
-  fn name(&self) -> &'static str {
-    "store"
-  }
-
-  fn extend_api(&mut self, message: Invoke<R>) {
-    (self.invoke_handler)(message)
-  }
-
-  fn initialize(&mut self, app: &AppHandle<R>, _: JsonValue) -> tauri::plugin::Result<()> {
-    app.manage(StoreCollection {
-      stores: Mutex::new(self.stores.clone()),
-      frozen: self.frozen,
-    });
-    Ok(())
-  }
-
-  fn on_event(&mut self, app: &AppHandle<R>, event: &tauri::RunEvent) {
-    if let RunEvent::Exit = event {
-      let collection = app.state::<StoreCollection>();
-
-      for store in collection.stores.lock().expect("mutex poisoned").values() {
-        if let Err(err) = store.save(app) {
-          eprintln!("failed to save store {:?} with error {:?}", store.path, err);
+      ])
+      .setup(move |app_handle| {
+        for (path, store) in self.stores.iter_mut() {
+          // ignore loading errors, just use the default
+          if let Err(err) = store.load(app_handle) {
+            error!(
+              "Failed to load store {:?} from disk: {}. Falling back to default values.",
+              path, err
+            );
+          }
         }
-      }
-    }
+
+        app_handle.manage(StoreCollection {
+          stores: Mutex::new(self.stores),
+          frozen: self.frozen,
+        });
+
+        Ok(())
+      })
+      .on_event(|app_handle, event| {
+        if let RunEvent::Exit = event {
+          let collection = app_handle.state::<StoreCollection>();
+
+          for store in collection.stores.lock().expect("mutex poisoned").values() {
+            if let Err(err) = store.save(app_handle) {
+              eprintln!("failed to save store {:?} with error {:?}", store.path, err);
+            }
+          }
+        }
+      })
+      .build()
   }
 }
