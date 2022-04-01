@@ -331,6 +331,10 @@ impl PluginBuilder {
         set, get, has, delete, clear, reset, keys, values, length, entries, load, save
       ])
       .setup(move |app_handle| {
+        for (_, store) in self.stores.iter_mut() {
+          // ignore loading errors, just use the default
+          let _ = store.load(app_handle);
+        }
 
         app_handle.manage(StoreCollection {
           stores: Mutex::new(self.stores),
