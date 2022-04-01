@@ -11,24 +11,33 @@
 		response += (typeof returnValue === 'string' ? returnValue : JSON.stringify(returnValue)) + '<br>'
 	}
 
-	function set() {
-		store.set(key, record).catch(_updateResponse)
+	async function set() {
+		await store.set(key, record).catch(_updateResponse)
 	}
 
-	function get() {
-		store.get(key)
+	async function get() {
+		await store.get(key)
 			.then(_updateResponse)
 			.catch(_updateResponse)
 	}
 
-	function set_broken() {
+	async function set_broken() {
 		const brokenStore = new Store('broken')
-		brokenStore.set('foo', 'bar')
+		await brokenStore.set('foo', 'bar')
+	}
+
+	async function save() {
+		await store.save()
+	}
+
+	async function load() {
+		await store.load()
 	}
 </script>
 
 <div>
-	<button on:click="{set_broken}">Broken</button>
+	<button on:click="{save}">Save</button>
+	<button on:click="{load}">Load</button>
 </div>
 <div>
 	<input placeholder="The value to store" bind:value={record}>
@@ -37,4 +46,7 @@
 <div>
 	<button on:click="{get}">Get</button>
 	<div>{@html response}</div>
+</div>
+<div>
+	<button on:click="{set_broken}">Broken</button>
 </div>
