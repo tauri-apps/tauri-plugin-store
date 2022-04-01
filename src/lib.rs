@@ -3,13 +3,14 @@
 // SPDX-License-Identifier: MIT
 
 pub use error::Error;
+use log::error;
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 use std::{collections::HashMap, path::PathBuf, sync::Mutex};
 pub use store::{Store, StoreBuilder};
 use tauri::{
   plugin::{self, TauriPlugin},
-  AppHandle, Manager, Runtime, State, Window, RunEvent,
+  AppHandle, Manager, RunEvent, Runtime, State, Window,
 };
 
 mod error;
@@ -42,7 +43,12 @@ fn with_store<R: Runtime, T, F: FnOnce(&mut Store) -> Result<T, Error>>(
     }
     let mut store = StoreBuilder::new(path.clone()).build();
     // ignore loading errors, just use the default
-    let _ = store.load(app);
+    if let Err(err) = store.load(app) {
+      error!(
+        "Failed to load store {:?} from disk: {}. Falling back to default values.",
+        path, err
+      );
+    }
     stores.insert(path.clone(), store);
   }
 
@@ -331,9 +337,14 @@ impl PluginBuilder {
         set, get, has, delete, clear, reset, keys, values, length, entries, load, save
       ])
       .setup(move |app_handle| {
-        for (_, store) in self.stores.iter_mut() {
+        for (path, store) in self.stores.iter_mut() {
           // ignore loading errors, just use the default
-          let _ = store.load(app_handle);
+          if let Err(err) = store.load(app_handle) {
+            error!(
+              "Failed to load store {:?} from disk: {}. Falling back to default values.",
+              path, err
+            );
+          }
         }
 
         app_handle.manage(StoreCollection {
