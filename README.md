@@ -76,4 +76,4 @@ assert(val, { value: 5 });
 
 # License
 
-MIT / Apache-2.0
+[MIT](/LICENSE_MIT) / [Apache-2.0](/LICENSE_APACHE-2.0)
