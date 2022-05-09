@@ -76,4 +76,4 @@ assert(val, { value: 5 });
 
 # License
 
-MIT / Apache-2.0
+[MIT](https://github.com/tauri-apps/tauri-plugin-store/blob/dev/LICENSE_MIT) / [Apache-2.0](https://github.com/tauri-apps/tauri-plugin-store/blob/dev/LICENSE_APACHE-2.0)
