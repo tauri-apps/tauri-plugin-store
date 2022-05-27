@@ -114,7 +114,7 @@ export class Store {
    * 
    * @returns 
    */
-  values(): Promise<string[]> {
+  values<T>(): Promise<T[]> {
     return invoke('plugin:store|values', {
       path: this.path
     })
@@ -186,8 +186,8 @@ export class Store {
    * Listen to changes on the store.
    * @param cb 
    */
-  onChange(cb: (key: string, value: unknown) => void) {
-    appWindow.listen<ChangePayload<unknown>>('store://change', event => {
+  onChange<T>(cb: (key: string, value: T | null) => void) {
+    appWindow.listen<ChangePayload<T>>('store://change', event => {
       if (event.payload.path === this.path) {
         cb(event.payload.key, event.payload.value)
       }
