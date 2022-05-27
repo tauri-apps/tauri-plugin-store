@@ -57,6 +57,14 @@ npm install github:tauri-apps/tauri-plugin-store#488558717b77d8a2bcb37acfd2eca96
 yarn add github:tauri-apps/tauri-plugin-store#488558717b77d8a2bcb37acfd2eca9658aeadc8e
 ```
 
+`Install from a branch (dev)`
+
+```
+npm install https://github.com/tauri-apps/tauri-plugin-store\#dev
+# or
+yarn add https://github.com/tauri-apps/tauri-plugin-store\#dev
+```
+
 `package.json`
 
 ```json
