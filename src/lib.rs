@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 pub use error::Error;
-use log::error;
+use log::warn;
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 use std::{collections::HashMap, path::PathBuf, sync::Mutex};
@@ -44,7 +44,7 @@ fn with_store<R: Runtime, T, F: FnOnce(&mut Store) -> Result<T, Error>>(
     let mut store = StoreBuilder::new(path.clone()).build();
     // ignore loading errors, just use the default
     if let Err(err) = store.load(app) {
-      error!(
+      warn!(
         "Failed to load store {:?} from disk: {}. Falling back to default values.",
         path, err
       );
@@ -340,7 +340,7 @@ impl PluginBuilder {
         for (path, store) in self.stores.iter_mut() {
           // ignore loading errors, just use the default
           if let Err(err) = store.load(app_handle) {
-            error!(
+            warn!(
               "Failed to load store {:?} from disk: {}. Falling back to default values.",
               path, err
             );
