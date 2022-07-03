@@ -58,7 +58,7 @@ export declare class Store {
      *
      * @returns
      */
-    values(): Promise<string[]>;
+    values<T>(): Promise<T[]>;
     /**
      * Returns a list of all entries in the store.
      *
@@ -98,5 +98,5 @@ export declare class Store {
      * Listen to changes on the store.
      * @param cb
      */
-    onChange(cb: (key: string, value: unknown) => void): void;
+    onChange<T>(cb: (key: string, value: T | null) => void): void;
 }
