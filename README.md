@@ -22,8 +22,8 @@ For more details and usage see [the example app](examples/svelte-app). Please no
 ```yaml
 [dependencies.tauri-plugin-store]
 git = "https://github.com/tauri-apps/tauri-plugin-store"
-tag = "v0.1.0"
-#branch = "main"
+#tag = "v0.1.0"
+branch = "dev"
 ```
 
 Use in `src-tauri/src/main.rs`:
