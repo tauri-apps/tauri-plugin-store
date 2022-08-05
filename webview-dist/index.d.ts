@@ -1,3 +1,4 @@
+import { UnlistenFn } from '@tauri-apps/api/event';
 /**
  * A key-value store persisted by the backend layer.
  */
@@ -92,11 +93,13 @@ export declare class Store {
      * Listen to changes on a store key.
      * @param key
      * @param cb
+     * @returns A promise resolving to a function to unlisten to the event.
      */
-    onKeyChange<T>(key: string, cb: (value: T | null) => void): void;
+    onKeyChange<T>(key: string, cb: (value: T | null) => void): Promise<UnlistenFn>;
     /**
      * Listen to changes on the store.
      * @param cb
+     * @returns A promise resolving to a function to unlisten to the event.
      */
-    onChange(cb: (key: string, value: unknown) => void): void;
+    onChange(cb: (key: string, value: unknown) => void): Promise<UnlistenFn>;
 }
