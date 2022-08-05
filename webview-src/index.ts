@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 import { invoke } from '@tauri-apps/api/tauri'
+import { UnlistenFn } from '@tauri-apps/api/event'
 import { appWindow } from '@tauri-apps/api/window'
 
 interface ChangePayload<T> {
@@ -173,9 +174,10 @@ export class Store {
    * Listen to changes on a store key.
    * @param key 
    * @param cb 
+   * @returns A promise resolving to a function to unlisten to the event.
    */
-  onKeyChange<T>(key: string, cb: (value: T | null) => void) {
-    appWindow.listen<ChangePayload<T>>('store://change', event => {
+  onKeyChange<T>(key: string, cb: (value: T | null) => void): Promise<UnlistenFn> {
+    return appWindow.listen<ChangePayload<T>>('store://change', event => {
       if (event.payload.path === this.path && event.payload.key === key) {
         cb(event.payload.value)
       }
@@ -185,9 +187,10 @@ export class Store {
   /**
    * Listen to changes on the store.
    * @param cb 
+   * @returns A promise resolving to a function to unlisten to the event.
    */
-  onChange(cb: (key: string, value: unknown) => void) {
-    appWindow.listen<ChangePayload<unknown>>('store://change', event => {
+  onChange(cb: (key: string, value: unknown) => void): Promise<UnlistenFn> {
+    return appWindow.listen<ChangePayload<unknown>>('store://change', event => {
       if (event.payload.path === this.path) {
         cb(event.payload.key, event.payload.value)
       }
