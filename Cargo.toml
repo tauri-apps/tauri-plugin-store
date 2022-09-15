@@ -8,7 +8,7 @@ exclude = ["/examples", "/webview-dist", "/webview-src", "node_modules"]
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
-tauri = "1.0"
+tauri = "1"
 serde = "1.0"
 serde_json = "1.0"
 thiserror = "1.0"
