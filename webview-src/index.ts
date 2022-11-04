@@ -115,7 +115,7 @@ export class Store {
    * 
    * @returns 
    */
-  values(): Promise<string[]> {
+  values<T>(): Promise<T[]> {
     return invoke('plugin:store|values', {
       path: this.path
     })
@@ -137,7 +137,7 @@ export class Store {
    * 
    * @returns 
    */
-  length(): Promise<string[]> {
+  length(): Promise<number> {
     return invoke('plugin:store|length', {
       path: this.path
     })
@@ -160,8 +160,8 @@ export class Store {
   /**
    * Saves the store to disk at the stores `path`.
    * 
-   * As the store is only persistet to disk before the apps exit, changes might be lost in a crash. 
-   * This method let's you persist the store to disk whenever you deem necessary.
+   * As the store is only persisted to disk before the apps exit, changes might be lost in a crash. 
+   * This method lets you persist the store to disk whenever you deem necessary.
    * @returns 
    */
   save(): Promise<void> {
@@ -189,8 +189,8 @@ export class Store {
    * @param cb 
    * @returns A promise resolving to a function to unlisten to the event.
    */
-  onChange(cb: (key: string, value: unknown) => void): Promise<UnlistenFn> {
-    return appWindow.listen<ChangePayload<unknown>>('store://change', event => {
+  onChange<T>(cb: (key: string, value: T | null) => void): Promise<UnlistenFn> {
+    return appWindow.listen<ChangePayload<T>>('store://change', event => {
       if (event.payload.path === this.path) {
         cb(event.payload.key, event.payload.value)
       }

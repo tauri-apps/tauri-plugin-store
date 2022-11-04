@@ -59,7 +59,7 @@ export declare class Store {
      *
      * @returns
      */
-    values(): Promise<string[]>;
+    values<T>(): Promise<T[]>;
     /**
      * Returns a list of all entries in the store.
      *
@@ -71,7 +71,7 @@ export declare class Store {
      *
      * @returns
      */
-    length(): Promise<string[]>;
+    length(): Promise<number>;
     /**
      * Attempts to load the on-disk state at the stores `path` into memory.
      *
@@ -101,5 +101,5 @@ export declare class Store {
      * @param cb
      * @returns A promise resolving to a function to unlisten to the event.
      */
-    onChange(cb: (key: string, value: unknown) => void): Promise<UnlistenFn>;
+    onChange<T>(cb: (key: string, value: T | null) => void): Promise<UnlistenFn>;
 }
