@@ -1,87 +1,70 @@
-# Tauri Plugin Store
+![plugin-store](banner.png)
 
-[![devto](https://img.shields.io/badge/documentation-github.io-purple.svg)](https://tauri-apps.github.io/tauri-plugin-store)
-![Test](https://github.com/tauri-apps/tauri-plugin-store/workflows/Test/badge.svg)
+Simple, persistent key-value store.
 
-This plugin provides an interface for storing unencrypted values on the application configuration files folder.
-
-## Installation
+## Install
 
 There are three general methods of installation that we can recommend.
 
-1. Pull sources directly from Github using git tags / revision hashes (most secure, good for developement, shown below)
-2. Git submodule install this repo in your tauri project and then use `file` protocol to ingest the source
-3. Use crates.io and npm (easiest, and requires you to trust that our publishing pipeline worked)
+1. Use crates.io and npm (easiest, and requires you to trust that our publishing pipeline worked)
+2. Pull sources directly from Github using git tags / revision hashes (most secure)
+3. Git submodule install this repo in your tauri project and then use file protocol to ingest the source (most secure, but inconvenient to use)
 
-For more details and usage see [the example app](examples/svelte-app). Please note, below in the dependencies you can also lock to a revision/tag in both the `Cargo.toml` and `package.json`
-
-### RUST
+Install the Core plugin by adding the following to your `Cargo.toml` file:
 
 `src-tauri/Cargo.toml`
 
-```yaml
-[dependencies.tauri-plugin-store]
-git = "https://github.com/tauri-apps/tauri-plugin-store"
-tag = "v0.1.0"
-#branch = "main"
+```toml
+[dependencies]
+tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev" }
 ```
 
-Use in `src-tauri/src/main.rs`:
+You can install the JavaScript Guest bindings using your preferred JavaScript package manager:
+
+> Note: Since most JavaScript package managers are unable to install packages from git monorepos we provide read-only mirrors of each plugin. This makes installation option 2 more ergonomic to use.
+
+```sh
+pnpm add https://github.com/tauri-apps/tauri-plugin-store
+# or
+npm add https://github.com/tauri-apps/tauri-plugin-store
+# or
+yarn add https://github.com/tauri-apps/tauri-plugin-store
+```
+
+## Usage
+
+First you need to register the core plugin with Tauri:
+
+`src-tauri/src/main.rs`
 
 ```rust
-use tauri_plugin_store::PluginBuilder;
-
 fn main() {
     tauri::Builder::default()
-        .plugin(PluginBuilder::default().build())
-        .build()
-        .run();
+        .plugin(tauri_plugin_store::Builder::default().build())
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
 ```
 
-### WEBVIEW
+Afterwards all the plugin's APIs are available through the JavaScript guest bindings:
 
-`Install from a tagged release`
+```javascript
+import { Store } from "tauri-plugin-store-api";
 
-```
-npm install github:tauri-apps/tauri-plugin-store#v0.1.0
-# or
-yarn add github:tauri-apps/tauri-plugin-store#v0.1.0
-```
+const store = new Store(".settings.dat");
 
-`Install from a commit`
+await store.set("some-key", { value: 5 });
 
-```
-npm install github:tauri-apps/tauri-plugin-store#488558717b77d8a2bcb37acfd2eca9658aeadc8e
-# or
-yarn add github:tauri-apps/tauri-plugin-store#488558717b77d8a2bcb37acfd2eca9658aeadc8e
-```
-
-`Install from a branch (dev)`
-
-```
-npm install https://github.com/tauri-apps/tauri-plugin-store\#dev
-# or
-yarn add https://github.com/tauri-apps/tauri-plugin-store\#dev
-```
-
-`package.json`
-
-```json
-  "dependencies": {
-    "tauri-plugin-store-api": "github:tauri-apps/tauri-plugin-store#v0.1.0",
-```
-
-Use within your JS/TS:
-
-```ts
-import { Store } from 'tauri-plugin-store-api';
-const store = new Store('.settings.dat');
-await store.set('some-key', { value: 5 });
-const val = await store.get('some-key');
+const val = await store.get("some-key");
 assert(val, { value: 5 });
 ```
 
-# License
+## Contributing
 
-[MIT](/LICENSE_MIT) / [Apache-2.0](/LICENSE_APACHE-2.0)
+PRs accepted. Please make sure to read the Contributing Guide before making a pull request.
+
+## License
+
+Code: (c) 2015 - Present - The Tauri Programme within The Commons Conservancy.
+
+MIT or MIT/Apache 2.0 where applicable.

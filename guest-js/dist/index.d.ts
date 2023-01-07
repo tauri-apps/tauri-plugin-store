@@ -1,4 +1,4 @@
-import { UnlistenFn } from '@tauri-apps/api/event';
+import { UnlistenFn } from "@tauri-apps/api/event";
 /**
  * A key-value store persisted by the backend layer.
  */
@@ -59,19 +59,19 @@ export declare class Store {
      *
      * @returns
      */
-    values(): Promise<string[]>;
+    values<T>(): Promise<T[]>;
     /**
      * Returns a list of all entries in the store.
      *
      * @returns
      */
-    entries<T>(): Promise<[key: string, value: T][]>;
+    entries<T>(): Promise<Array<[key: string, value: T]>>;
     /**
      * Returns the number of key-value pairs in the store.
      *
      * @returns
      */
-    length(): Promise<string[]>;
+    length(): Promise<number>;
     /**
      * Attempts to load the on-disk state at the stores `path` into memory.
      *
@@ -84,8 +84,8 @@ export declare class Store {
     /**
      * Saves the store to disk at the stores `path`.
      *
-     * As the store is only persistet to disk before the apps exit, changes might be lost in a crash.
-     * This method let's you persist the store to disk whenever you deem necessary.
+     * As the store is only persisted to disk before the apps exit, changes might be lost in a crash.
+     * This method lets you persist the store to disk whenever you deem necessary.
      * @returns
      */
     save(): Promise<void>;
@@ -101,5 +101,5 @@ export declare class Store {
      * @param cb
      * @returns A promise resolving to a function to unlisten to the event.
      */
-    onChange(cb: (key: string, value: unknown) => void): Promise<UnlistenFn>;
+    onChange<T>(cb: (key: string, value: T | null) => void): Promise<UnlistenFn>;
 }

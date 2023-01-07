@@ -1,14 +1,1 @@
-/.vs
-.DS_Store
-.Thumbs.db
-*.sublime*
-.idea/
-debug.log
-package-lock.json
-.vscode/settings.json
-yarn.lock
-yarn-error.log
-
-/target
-Cargo.lock
-node_modules/
+node_modules

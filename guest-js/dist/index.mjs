@@ -16,11 +16,11 @@ class Store {
      * @param value
      * @returns
      */
-    set(key, value) {
-        return invoke('plugin:store|set', {
+    async set(key, value) {
+        return await invoke("plugin:store|set", {
             path: this.path,
             key,
-            value
+            value,
         });
     }
     /**
@@ -29,10 +29,10 @@ class Store {
      * @param key
      * @returns
      */
-    get(key) {
-        return invoke('plugin:store|get', {
+    async get(key) {
+        return await invoke("plugin:store|get", {
             path: this.path,
-            key
+            key,
         });
     }
     /**
@@ -41,10 +41,10 @@ class Store {
      * @param key
      * @returns
      */
-    has(key) {
-        return invoke('plugin:store|has', {
+    async has(key) {
+        return await invoke("plugin:store|has", {
             path: this.path,
-            key
+            key,
         });
     }
     /**
@@ -53,10 +53,10 @@ class Store {
      * @param key
      * @returns
      */
-    delete(key) {
-        return invoke('plugin:store|delete', {
+    async delete(key) {
+        return await invoke("plugin:store|delete", {
             path: this.path,
-            key
+            key,
         });
     }
     /**
@@ -65,9 +65,9 @@ class Store {
      * Note: To clear the storage and reset it to it's `default` value, use `reset` instead.
      * @returns
      */
-    clear() {
-        return invoke('plugin:store|clear', {
-            path: this.path
+    async clear() {
+        return await invoke("plugin:store|clear", {
+            path: this.path,
         });
     }
     /**
@@ -76,9 +76,9 @@ class Store {
      * If no default value has been set, this method behaves identical to `clear`.
      * @returns
      */
-    reset() {
-        return invoke('plugin:store|reset', {
-            path: this.path
+    async reset() {
+        return await invoke("plugin:store|reset", {
+            path: this.path,
         });
     }
     /**
@@ -86,9 +86,9 @@ class Store {
      *
      * @returns
      */
-    keys() {
-        return invoke('plugin:store|keys', {
-            path: this.path
+    async keys() {
+        return await invoke("plugin:store|keys", {
+            path: this.path,
         });
     }
     /**
@@ -96,9 +96,9 @@ class Store {
      *
      * @returns
      */
-    values() {
-        return invoke('plugin:store|values', {
-            path: this.path
+    async values() {
+        return await invoke("plugin:store|values", {
+            path: this.path,
         });
     }
     /**
@@ -106,9 +106,9 @@ class Store {
      *
      * @returns
      */
-    entries() {
-        return invoke('plugin:store|entries', {
-            path: this.path
+    async entries() {
+        return await invoke("plugin:store|entries", {
+            path: this.path,
         });
     }
     /**
@@ -116,9 +116,9 @@ class Store {
      *
      * @returns
      */
-    length() {
-        return invoke('plugin:store|length', {
-            path: this.path
+    async length() {
+        return await invoke("plugin:store|length", {
+            path: this.path,
         });
     }
     /**
@@ -129,21 +129,21 @@ class Store {
      * Note: This method does not emit change events.
      * @returns
      */
-    load() {
-        return invoke('plugin:store|load', {
-            path: this.path
+    async load() {
+        return await invoke("plugin:store|load", {
+            path: this.path,
         });
     }
     /**
      * Saves the store to disk at the stores `path`.
      *
-     * As the store is only persistet to disk before the apps exit, changes might be lost in a crash.
-     * This method let's you persist the store to disk whenever you deem necessary.
+     * As the store is only persisted to disk before the apps exit, changes might be lost in a crash.
+     * This method lets you persist the store to disk whenever you deem necessary.
      * @returns
      */
-    save() {
-        return invoke('plugin:store|save', {
-            path: this.path
+    async save() {
+        return await invoke("plugin:store|save", {
+            path: this.path,
         });
     }
     /**
@@ -152,8 +152,8 @@ class Store {
      * @param cb
      * @returns A promise resolving to a function to unlisten to the event.
      */
-    onKeyChange(key, cb) {
-        return appWindow.listen('store://change', event => {
+    async onKeyChange(key, cb) {
+        return await appWindow.listen("store://change", (event) => {
             if (event.payload.path === this.path && event.payload.key === key) {
                 cb(event.payload.value);
             }
@@ -164,8 +164,8 @@ class Store {
      * @param cb
      * @returns A promise resolving to a function to unlisten to the event.
      */
-    onChange(cb) {
-        return appWindow.listen('store://change', event => {
+    async onChange(cb) {
+        return await appWindow.listen("store://change", (event) => {
             if (event.payload.path === this.path) {
                 cb(event.payload.key, event.payload.value);
             }
@@ -174,3 +174,4 @@ class Store {
 }
 
 export { Store };
+//# sourceMappingURL=index.mjs.map
