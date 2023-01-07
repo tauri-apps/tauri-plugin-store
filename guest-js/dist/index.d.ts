@@ -1,4 +1,4 @@
-import { UnlistenFn } from '@tauri-apps/api/event';
+import { UnlistenFn } from "@tauri-apps/api/event";
 /**
  * A key-value store persisted by the backend layer.
  */
@@ -65,7 +65,7 @@ export declare class Store {
      *
      * @returns
      */
-    entries<T>(): Promise<[key: string, value: T][]>;
+    entries<T>(): Promise<Array<[key: string, value: T]>>;
     /**
      * Returns the number of key-value pairs in the store.
      *
@@ -84,8 +84,8 @@ export declare class Store {
     /**
      * Saves the store to disk at the stores `path`.
      *
-     * As the store is only persistet to disk before the apps exit, changes might be lost in a crash.
-     * This method let's you persist the store to disk whenever you deem necessary.
+     * As the store is only persisted to disk before the apps exit, changes might be lost in a crash.
+     * This method lets you persist the store to disk whenever you deem necessary.
      * @returns
      */
     save(): Promise<void>;

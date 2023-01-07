@@ -9,26 +9,26 @@ use std::path::PathBuf;
 #[derive(thiserror::Error, Debug)]
 #[non_exhaustive]
 pub enum Error {
-  #[error("Failed to serialize store. {0}")]
-  Serialize(Box<dyn std::error::Error>),
-  #[error("Failed to deserialize store. {0}")]
-  Deserialize(Box<dyn std::error::Error>),
-  /// JSON error.
-  #[error(transparent)]
-  Json(#[from] serde_json::Error),
-  /// IO error.
-  #[error(transparent)]
-  Io(#[from] std::io::Error),
-  /// Store not found
-  #[error("Store \"{0}\" not found")]
-  NotFound(PathBuf),
+    #[error("Failed to serialize store. {0}")]
+    Serialize(Box<dyn std::error::Error>),
+    #[error("Failed to deserialize store. {0}")]
+    Deserialize(Box<dyn std::error::Error>),
+    /// JSON error.
+    #[error(transparent)]
+    Json(#[from] serde_json::Error),
+    /// IO error.
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
+    /// Store not found
+    #[error("Store \"{0}\" not found")]
+    NotFound(PathBuf),
 }
 
 impl Serialize for Error {
-  fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-  where
-    S: Serializer,
-  {
-    serializer.serialize_str(self.to_string().as_ref())
-  }
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.to_string().as_ref())
+    }
 }

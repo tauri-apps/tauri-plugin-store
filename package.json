@@ -1,41 +1,33 @@
 {
-    "name": "tauri-plugin-store-api",
-    "version": "0.1.0",
-    "authors": [
-        "Tauri Programme within The Commons Conservancy"
-    ],
-    "description": "API wrapper for the Tauri Plugin for simple data persistence",
-    "type": "module",
-    "browser": "webview-dist/index.min.js",
-    "types": "webview-dist/index.d.ts",
-    "exports": {
-        ".": {
-            "import": "./webview-dist/index.mjs"
-        },
-        "./package.json": "./package.json"
-    },
-    "files": [
-        "webview-dist"
-    ],
-    "scripts": {
-        "build": "yarn build:api && yarn build:docs",
-        "build:api": "rollup -c ./webview-src/rollup.config.js",
-        "build:docs": "typedoc webview-src --out docs --tsconfig webview-src/tsconfig.json",
-        "prepublishOnly": "yarn build:api",
-        "pretest": "yarn build:api"
-    },
-    "license": "MIT",
-    "devDependencies": {
-        "@rollup/plugin-node-resolve": "13.3.0",
-        "@rollup/plugin-typescript": "8.5.0",
-        "rollup": "2.78.1",
-        "rollup-plugin-terser": "7.0.2",
-        "type-fest": "2.12.2",
-        "typedoc": "0.23.10",
-        "typescript": "4.8.4"
-    },
-    "dependencies": {
-        "@tauri-apps/api": "1.1.0",
-        "tslib": "2.4.0"
-    }
+  "name": "tauri-plugin-store-api",
+  "version": "0.0.0",
+  "description": "Simple, persistent key-value store.",
+  "license": "MIT or APACHE-2.0",
+  "authors": [
+    "Tauri Programme within The Commons Conservancy"
+  ],
+  "type": "module",
+  "browser": "guest-js/dist/index.min.js",
+  "module": "guest-js/dist/index.mjs",
+  "types": "guest-js/dist/index.d.ts",
+  "exports": {
+    "import": "./guest-js/dist/index.mjs",
+    "types": "./guest-js/dist/index.d.ts",
+    "browser": "./guest-js/dist/index.min.js"
+  },
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.map",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "tslib": "^2.4.1"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.2.0"
+  }
 }
