@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { listen } from '@tauri-apps/api/event';
 
-// Copyright 2021 Tauri Programme within The Commons Conservancy
+// Copyright 2019-2023 Tauri Programme within The Commons Conservancy
 /**
  * A key-value store persisted by the backend layer.
  */
