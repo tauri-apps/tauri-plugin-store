@@ -1,4 +1,3 @@
-import { invoke } from '@tauri-apps/api/tauri';
 import { listen } from '@tauri-apps/api/event';
 
 // Copyright 2019-2023 Tauri Programme within The Commons Conservancy
@@ -17,7 +16,7 @@ class Store {
      * @returns
      */
     async set(key, value) {
-        return await invoke("plugin:store|set", {
+        return await window.__TAURI_INVOKE__("plugin:store|set", {
             path: this.path,
             key,
             value,
@@ -30,7 +29,7 @@ class Store {
      * @returns
      */
     async get(key) {
-        return await invoke("plugin:store|get", {
+        return await window.__TAURI_INVOKE__("plugin:store|get", {
             path: this.path,
             key,
         });
@@ -42,7 +41,7 @@ class Store {
      * @returns
      */
     async has(key) {
-        return await invoke("plugin:store|has", {
+        return await window.__TAURI_INVOKE__("plugin:store|has", {
             path: this.path,
             key,
         });
@@ -54,7 +53,7 @@ class Store {
      * @returns
      */
     async delete(key) {
-        return await invoke("plugin:store|delete", {
+        return await window.__TAURI_INVOKE__("plugin:store|delete", {
             path: this.path,
             key,
         });
@@ -66,7 +65,7 @@ class Store {
      * @returns
      */
     async clear() {
-        return await invoke("plugin:store|clear", {
+        return await window.__TAURI_INVOKE__("plugin:store|clear", {
             path: this.path,
         });
     }
@@ -77,7 +76,7 @@ class Store {
      * @returns
      */
     async reset() {
-        return await invoke("plugin:store|reset", {
+        return await window.__TAURI_INVOKE__("plugin:store|reset", {
             path: this.path,
         });
     }
@@ -87,7 +86,7 @@ class Store {
      * @returns
      */
     async keys() {
-        return await invoke("plugin:store|keys", {
+        return await window.__TAURI_INVOKE__("plugin:store|keys", {
             path: this.path,
         });
     }
@@ -97,7 +96,7 @@ class Store {
      * @returns
      */
     async values() {
-        return await invoke("plugin:store|values", {
+        return await window.__TAURI_INVOKE__("plugin:store|values", {
             path: this.path,
         });
     }
@@ -107,7 +106,7 @@ class Store {
      * @returns
      */
     async entries() {
-        return await invoke("plugin:store|entries", {
+        return await window.__TAURI_INVOKE__("plugin:store|entries", {
             path: this.path,
         });
     }
@@ -117,7 +116,7 @@ class Store {
      * @returns
      */
     async length() {
-        return await invoke("plugin:store|length", {
+        return await window.__TAURI_INVOKE__("plugin:store|length", {
             path: this.path,
         });
     }
@@ -130,7 +129,7 @@ class Store {
      * @returns
      */
     async load() {
-        return await invoke("plugin:store|load", {
+        return await window.__TAURI_INVOKE__("plugin:store|load", {
             path: this.path,
         });
     }
@@ -142,7 +141,7 @@ class Store {
      * @returns
      */
     async save() {
-        return await invoke("plugin:store|save", {
+        return await window.__TAURI_INVOKE__("plugin:store|save", {
             path: this.path,
         });
     }
