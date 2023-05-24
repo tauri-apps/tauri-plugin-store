@@ -150,6 +150,8 @@ class Store {
      * @param key
      * @param cb
      * @returns A promise resolving to a function to unlisten to the event.
+     *
+     * @since 2.0.0
      */
     async onKeyChange(key, cb) {
         return await listen("store://change", (event) => {
@@ -162,6 +164,8 @@ class Store {
      * Listen to changes on the store.
      * @param cb
      * @returns A promise resolving to a function to unlisten to the event.
+     *
+     * @since 2.0.0
      */
     async onChange(cb) {
         return await listen("store://change", (event) => {
