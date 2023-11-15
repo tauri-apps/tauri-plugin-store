@@ -1,5 +1,7 @@
-import { listen } from '@tauri-apps/api/event';
-import { invoke } from '@tauri-apps/api/primitives';
+'use strict';
+
+var event = require('@tauri-apps/api/event');
+var primitives = require('@tauri-apps/api/primitives');
 
 // Copyright 2019-2023 Tauri Programme within The Commons Conservancy
 // SPDX-License-Identifier: Apache-2.0
@@ -19,7 +21,7 @@ class Store {
      * @returns
      */
     async set(key, value) {
-        return await invoke("plugin:store|set", {
+        return await primitives.invoke("plugin:store|set", {
             path: this.path,
             key,
             value,
@@ -32,7 +34,7 @@ class Store {
      * @returns
      */
     async get(key) {
-        return await invoke("plugin:store|get", {
+        return await primitives.invoke("plugin:store|get", {
             path: this.path,
             key,
         });
@@ -44,7 +46,7 @@ class Store {
      * @returns
      */
     async has(key) {
-        return await invoke("plugin:store|has", {
+        return await primitives.invoke("plugin:store|has", {
             path: this.path,
             key,
         });
@@ -56,7 +58,7 @@ class Store {
      * @returns
      */
     async delete(key) {
-        return await invoke("plugin:store|delete", {
+        return await primitives.invoke("plugin:store|delete", {
             path: this.path,
             key,
         });
@@ -68,7 +70,7 @@ class Store {
      * @returns
      */
     async clear() {
-        return await invoke("plugin:store|clear", {
+        return await primitives.invoke("plugin:store|clear", {
             path: this.path,
         });
     }
@@ -79,7 +81,7 @@ class Store {
      * @returns
      */
     async reset() {
-        return await invoke("plugin:store|reset", {
+        return await primitives.invoke("plugin:store|reset", {
             path: this.path,
         });
     }
@@ -89,7 +91,7 @@ class Store {
      * @returns
      */
     async keys() {
-        return await invoke("plugin:store|keys", {
+        return await primitives.invoke("plugin:store|keys", {
             path: this.path,
         });
     }
@@ -99,7 +101,7 @@ class Store {
      * @returns
      */
     async values() {
-        return await invoke("plugin:store|values", {
+        return await primitives.invoke("plugin:store|values", {
             path: this.path,
         });
     }
@@ -109,7 +111,7 @@ class Store {
      * @returns
      */
     async entries() {
-        return await invoke("plugin:store|entries", {
+        return await primitives.invoke("plugin:store|entries", {
             path: this.path,
         });
     }
@@ -119,7 +121,7 @@ class Store {
      * @returns
      */
     async length() {
-        return await invoke("plugin:store|length", {
+        return await primitives.invoke("plugin:store|length", {
             path: this.path,
         });
     }
@@ -132,7 +134,7 @@ class Store {
      * @returns
      */
     async load() {
-        return await invoke("plugin:store|load", {
+        return await primitives.invoke("plugin:store|load", {
             path: this.path,
         });
     }
@@ -144,7 +146,7 @@ class Store {
      * @returns
      */
     async save() {
-        return await invoke("plugin:store|save", {
+        return await primitives.invoke("plugin:store|save", {
             path: this.path,
         });
     }
@@ -157,7 +159,7 @@ class Store {
      * @since 2.0.0
      */
     async onKeyChange(key, cb) {
-        return await listen("store://change", (event) => {
+        return await event.listen("store://change", (event) => {
             if (event.payload.path === this.path && event.payload.key === key) {
                 cb(event.payload.value);
             }
@@ -171,7 +173,7 @@ class Store {
      * @since 2.0.0
      */
     async onChange(cb) {
-        return await listen("store://change", (event) => {
+        return await event.listen("store://change", (event) => {
             if (event.payload.path === this.path) {
                 cb(event.payload.key, event.payload.value);
             }
@@ -179,5 +181,4 @@ class Store {
     }
 }
 
-export { Store };
-//# sourceMappingURL=index.mjs.map
+exports.Store = Store;
