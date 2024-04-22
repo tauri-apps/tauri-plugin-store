@@ -1,4 +1,4 @@
-import { UnlistenFn } from "@tauri-apps/api/event";
+import { type UnlistenFn } from "@tauri-apps/api/event";
 /**
  * A key-value store persisted by the backend layer.
  */

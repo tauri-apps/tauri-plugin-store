@@ -21,7 +21,7 @@ class Store {
      * @returns
      */
     async set(key, value) {
-        return await core.invoke("plugin:store|set", {
+        await core.invoke("plugin:store|set", {
             path: this.path,
             key,
             value,
@@ -70,7 +70,7 @@ class Store {
      * @returns
      */
     async clear() {
-        return await core.invoke("plugin:store|clear", {
+        await core.invoke("plugin:store|clear", {
             path: this.path,
         });
     }
@@ -81,7 +81,7 @@ class Store {
      * @returns
      */
     async reset() {
-        return await core.invoke("plugin:store|reset", {
+        await core.invoke("plugin:store|reset", {
             path: this.path,
         });
     }
@@ -134,7 +134,7 @@ class Store {
      * @returns
      */
     async load() {
-        return await core.invoke("plugin:store|load", {
+        await core.invoke("plugin:store|load", {
             path: this.path,
         });
     }
@@ -146,7 +146,7 @@ class Store {
      * @returns
      */
     async save() {
-        return await core.invoke("plugin:store|save", {
+        await core.invoke("plugin:store|save", {
             path: this.path,
         });
     }
