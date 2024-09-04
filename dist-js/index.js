@@ -19,10 +19,10 @@ class Store {
      * @returns
      */
     async set(key, value) {
-        await invoke("plugin:store|set", {
+        await invoke('plugin:store|set', {
             path: this.path,
             key,
-            value,
+            value
         });
     }
     /**
@@ -32,9 +32,9 @@ class Store {
      * @returns
      */
     async get(key) {
-        return await invoke("plugin:store|get", {
+        return await invoke('plugin:store|get', {
             path: this.path,
-            key,
+            key
         });
     }
     /**
@@ -44,9 +44,9 @@ class Store {
      * @returns
      */
     async has(key) {
-        return await invoke("plugin:store|has", {
+        return await invoke('plugin:store|has', {
             path: this.path,
-            key,
+            key
         });
     }
     /**
@@ -56,9 +56,9 @@ class Store {
      * @returns
      */
     async delete(key) {
-        return await invoke("plugin:store|delete", {
+        return await invoke('plugin:store|delete', {
             path: this.path,
-            key,
+            key
         });
     }
     /**
@@ -68,8 +68,8 @@ class Store {
      * @returns
      */
     async clear() {
-        await invoke("plugin:store|clear", {
-            path: this.path,
+        await invoke('plugin:store|clear', {
+            path: this.path
         });
     }
     /**
@@ -79,8 +79,8 @@ class Store {
      * @returns
      */
     async reset() {
-        await invoke("plugin:store|reset", {
-            path: this.path,
+        await invoke('plugin:store|reset', {
+            path: this.path
         });
     }
     /**
@@ -89,8 +89,8 @@ class Store {
      * @returns
      */
     async keys() {
-        return await invoke("plugin:store|keys", {
-            path: this.path,
+        return await invoke('plugin:store|keys', {
+            path: this.path
         });
     }
     /**
@@ -99,8 +99,8 @@ class Store {
      * @returns
      */
     async values() {
-        return await invoke("plugin:store|values", {
-            path: this.path,
+        return await invoke('plugin:store|values', {
+            path: this.path
         });
     }
     /**
@@ -109,8 +109,8 @@ class Store {
      * @returns
      */
     async entries() {
-        return await invoke("plugin:store|entries", {
-            path: this.path,
+        return await invoke('plugin:store|entries', {
+            path: this.path
         });
     }
     /**
@@ -119,8 +119,8 @@ class Store {
      * @returns
      */
     async length() {
-        return await invoke("plugin:store|length", {
-            path: this.path,
+        return await invoke('plugin:store|length', {
+            path: this.path
         });
     }
     /**
@@ -132,8 +132,8 @@ class Store {
      * @returns
      */
     async load() {
-        await invoke("plugin:store|load", {
-            path: this.path,
+        await invoke('plugin:store|load', {
+            path: this.path
         });
     }
     /**
@@ -144,8 +144,8 @@ class Store {
      * @returns
      */
     async save() {
-        await invoke("plugin:store|save", {
-            path: this.path,
+        await invoke('plugin:store|save', {
+            path: this.path
         });
     }
     /**
@@ -157,7 +157,7 @@ class Store {
      * @since 2.0.0
      */
     async onKeyChange(key, cb) {
-        return await listen("store://change", (event) => {
+        return await listen('store://change', (event) => {
             if (event.payload.path === this.path && event.payload.key === key) {
                 cb(event.payload.value);
             }
@@ -171,7 +171,7 @@ class Store {
      * @since 2.0.0
      */
     async onChange(cb) {
-        return await listen("store://change", (event) => {
+        return await listen('store://change', (event) => {
             if (event.payload.path === this.path) {
                 cb(event.payload.key, event.payload.value);
             }
