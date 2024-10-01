@@ -1,14 +1,26 @@
 import { listen } from '@tauri-apps/api/event';
-import { invoke } from '@tauri-apps/api/core';
+import { invoke, Resource } from '@tauri-apps/api/core';
 
 // Copyright 2019-2023 Tauri Programme within The Commons Conservancy
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-License-Identifier: MIT
 /**
- * A key-value store persisted by the backend layer.
+ * @param path: Path to save the store in `app_data_dir`
+ * @param options: Store configuration options
  */
-class Store {
-    constructor(path) {
+async function createStore(path, options) {
+    const resourceId = await invoke('plugin:store|create_store', {
+        path,
+        ...options
+    });
+    return new Store(resourceId, path);
+}
+/**
+ * A lazy loaded key-value store persisted by the backend layer.
+ */
+class Store extends Resource {
+    constructor(rid, path) {
+        super(rid);
         this.path = path;
     }
     /**
@@ -20,7 +32,7 @@ class Store {
      */
     async set(key, value) {
         await invoke('plugin:store|set', {
-            path: this.path,
+            rid: this.rid,
             key,
             value
         });
@@ -33,7 +45,7 @@ class Store {
      */
     async get(key) {
         return await invoke('plugin:store|get', {
-            path: this.path,
+            rid: this.rid,
             key
         });
     }
@@ -45,7 +57,7 @@ class Store {
      */
     async has(key) {
         return await invoke('plugin:store|has', {
-            path: this.path,
+            rid: this.rid,
             key
         });
     }
@@ -57,7 +69,7 @@ class Store {
      */
     async delete(key) {
         return await invoke('plugin:store|delete', {
-            path: this.path,
+            rid: this.rid,
             key
         });
     }
@@ -68,9 +80,7 @@ class Store {
      * @returns
      */
     async clear() {
-        await invoke('plugin:store|clear', {
-            path: this.path
-        });
+        await invoke('plugin:store|clear', { rid: this.rid });
     }
     /**
      * Resets the store to it's `default` value.
@@ -79,9 +89,7 @@ class Store {
      * @returns
      */
     async reset() {
-        await invoke('plugin:store|reset', {
-            path: this.path
-        });
+        await invoke('plugin:store|reset', { rid: this.rid });
     }
     /**
      * Returns a list of all key in the store.
@@ -89,9 +97,7 @@ class Store {
      * @returns
      */
     async keys() {
-        return await invoke('plugin:store|keys', {
-            path: this.path
-        });
+        return await invoke('plugin:store|keys', { rid: this.rid });
     }
     /**
      * Returns a list of all values in the store.
@@ -99,9 +105,7 @@ class Store {
      * @returns
      */
     async values() {
-        return await invoke('plugin:store|values', {
-            path: this.path
-        });
+        return await invoke('plugin:store|values', { rid: this.rid });
     }
     /**
      * Returns a list of all entries in the store.
@@ -109,9 +113,7 @@ class Store {
      * @returns
      */
     async entries() {
-        return await invoke('plugin:store|entries', {
-            path: this.path
-        });
+        return await invoke('plugin:store|entries', { rid: this.rid });
     }
     /**
      * Returns the number of key-value pairs in the store.
@@ -119,9 +121,7 @@ class Store {
      * @returns
      */
     async length() {
-        return await invoke('plugin:store|length', {
-            path: this.path
-        });
+        return await invoke('plugin:store|length', { rid: this.rid });
     }
     /**
      * Attempts to load the on-disk state at the stores `path` into memory.
@@ -132,9 +132,7 @@ class Store {
      * @returns
      */
     async load() {
-        await invoke('plugin:store|load', {
-            path: this.path
-        });
+        await invoke('plugin:store|load', { rid: this.rid });
     }
     /**
      * Saves the store to disk at the stores `path`.
@@ -144,9 +142,7 @@ class Store {
      * @returns
      */
     async save() {
-        await invoke('plugin:store|save', {
-            path: this.path
-        });
+        await invoke('plugin:store|save', { rid: this.rid });
     }
     /**
      * Listen to changes on a store key.
@@ -179,4 +175,4 @@ class Store {
     }
 }
 
-export { Store };
+export { Store, createStore };

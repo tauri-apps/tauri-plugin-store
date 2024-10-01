@@ -1,10 +1,25 @@
 import { type UnlistenFn } from '@tauri-apps/api/event';
+import { Resource } from '@tauri-apps/api/core';
 /**
- * A key-value store persisted by the backend layer.
+ * Options to create a store
  */
-export declare class Store {
-    path: string;
-    constructor(path: string);
+export type StoreOptions = {
+    /**
+     * Auto save on modification with debounce duration in milliseconds
+     */
+    autoSave?: boolean;
+};
+/**
+ * @param path: Path to save the store in `app_data_dir`
+ * @param options: Store configuration options
+ */
+export declare function createStore(path: string, options?: StoreOptions): Promise<Store>;
+/**
+ * A lazy loaded key-value store persisted by the backend layer.
+ */
+export declare class Store extends Resource {
+    private readonly path;
+    constructor(rid: number, path: string);
     /**
      * Inserts a key-value pair into the store.
      *
