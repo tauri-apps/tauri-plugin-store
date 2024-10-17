@@ -5,21 +5,140 @@ import { Resource } from '@tauri-apps/api/core';
  */
 export type StoreOptions = {
     /**
-     * Auto save on modification with debounce duration in milliseconds
+     * Auto save on modification with debounce duration in milliseconds, it's 100ms by default, pass in `false` to disable it
      */
-    autoSave?: boolean;
+    autoSave?: boolean | number;
+    /**
+     * Name of a serialize function registered in the rust side plugin builder
+     */
+    serializeFnName?: string;
+    /**
+     * Name of a deserialize function registered in the rust side plugin builder
+     */
+    deserializeFnName?: string;
+    /**
+     * Force create a new store with default values even if it already exists.
+     */
+    createNew?: boolean;
 };
 /**
- * @param path: Path to save the store in `app_data_dir`
- * @param options: Store configuration options
+ * Create a new Store or load the existing store with the path.
+ *
+ * @example
+ * ```typescript
+ * import { Store } from '@tauri-apps/api/store';
+ * const store = await Store.load('store.json');
+ * ```
+ *
+ * @param path Path to save the store in `app_data_dir`
+ * @param options Store configuration options
  */
-export declare function createStore(path: string, options?: StoreOptions): Promise<Store>;
+export declare function load(path: string, options?: StoreOptions): Promise<Store>;
+/**
+ * Gets an already loaded store.
+ *
+ * If the store is not loaded, returns `null`. In this case you must {@link Store.load load} it.
+ *
+ * This function is more useful when you already know the store is loaded
+ * and just need to access its instance. Prefer {@link Store.load} otherwise.
+ *
+ * @example
+ * ```typescript
+ * import { getStore } from '@tauri-apps/api/store';
+ * const store = await getStore('store.json');
+ * ```
+ *
+ * @param path Path of the store.
+ */
+export declare function getStore(path: string): Promise<Store | null>;
 /**
  * A lazy loaded key-value store persisted by the backend layer.
  */
-export declare class Store extends Resource {
+export declare class LazyStore implements IStore {
     private readonly path;
-    constructor(rid: number, path: string);
+    private readonly options?;
+    private _store?;
+    private get store();
+    /**
+     * Note that the options are not applied if someone else already created the store
+     * @param path Path to save the store in `app_data_dir`
+     * @param options Store configuration options
+     */
+    constructor(path: string, options?: StoreOptions | undefined);
+    /**
+     * Init/load the store if it's not loaded already
+     */
+    init(): Promise<void>;
+    set(key: string, value: unknown): Promise<void>;
+    get<T>(key: string): Promise<T | undefined>;
+    has(key: string): Promise<boolean>;
+    delete(key: string): Promise<boolean>;
+    clear(): Promise<void>;
+    reset(): Promise<void>;
+    keys(): Promise<string[]>;
+    values<T>(): Promise<T[]>;
+    entries<T>(): Promise<Array<[key: string, value: T]>>;
+    length(): Promise<number>;
+    reload(): Promise<void>;
+    save(): Promise<void>;
+    onKeyChange<T>(key: string, cb: (value: T | undefined) => void): Promise<UnlistenFn>;
+    onChange<T>(cb: (key: string, value: T | undefined) => void): Promise<UnlistenFn>;
+    close(): Promise<void>;
+}
+/**
+ * A key-value store persisted by the backend layer.
+ */
+export declare class Store extends Resource implements IStore {
+    private constructor();
+    /**
+     * Create a new Store or load the existing store with the path.
+     *
+     * @example
+     * ```typescript
+     * import { Store } from '@tauri-apps/api/store';
+     * const store = await Store.load('store.json');
+     * ```
+     *
+     * @param path Path to save the store in `app_data_dir`
+     * @param options Store configuration options
+     */
+    static load(path: string, options?: StoreOptions): Promise<Store>;
+    /**
+     * Gets an already loaded store.
+     *
+     * If the store is not loaded, returns `null`. In this case you must {@link Store.load load} it.
+     *
+     * This function is more useful when you already know the store is loaded
+     * and just need to access its instance. Prefer {@link Store.load} otherwise.
+     *
+     * @example
+     * ```typescript
+     * import { Store } from '@tauri-apps/api/store';
+     * let store = await Store.get('store.json');
+     * if (!store) {
+     *   store = await Store.load('store.json');
+     * }
+     * ```
+     *
+     * @param path Path of the store.
+     */
+    static get(path: string): Promise<Store | null>;
+    set(key: string, value: unknown): Promise<void>;
+    get<T>(key: string): Promise<T | undefined>;
+    has(key: string): Promise<boolean>;
+    delete(key: string): Promise<boolean>;
+    clear(): Promise<void>;
+    reset(): Promise<void>;
+    keys(): Promise<string[]>;
+    values<T>(): Promise<T[]>;
+    entries<T>(): Promise<Array<[key: string, value: T]>>;
+    length(): Promise<number>;
+    reload(): Promise<void>;
+    save(): Promise<void>;
+    onKeyChange<T>(key: string, cb: (value: T | undefined) => void): Promise<UnlistenFn>;
+    onChange<T>(cb: (key: string, value: T | undefined) => void): Promise<UnlistenFn>;
+}
+interface IStore {
     /**
      * Inserts a key-value pair into the store.
      *
@@ -29,12 +148,12 @@ export declare class Store extends Resource {
      */
     set(key: string, value: unknown): Promise<void>;
     /**
-     * Returns the value for the given `key` or `null` the key does not exist.
+     * Returns the value for the given `key` or `undefined` if the key does not exist.
      *
      * @param key
      * @returns
      */
-    get<T>(key: string): Promise<T | null>;
+    get<T>(key: string): Promise<T | undefined>;
     /**
      * Returns `true` if the given `key` exists in the store.
      *
@@ -52,19 +171,19 @@ export declare class Store extends Resource {
     /**
      * Clears the store, removing all key-value pairs.
      *
-     * Note: To clear the storage and reset it to it's `default` value, use `reset` instead.
+     * Note: To clear the storage and reset it to its `default` value, use {@linkcode reset} instead.
      * @returns
      */
     clear(): Promise<void>;
     /**
-     * Resets the store to it's `default` value.
+     * Resets the store to its `default` value.
      *
-     * If no default value has been set, this method behaves identical to `clear`.
+     * If no default value has been set, this method behaves identical to {@linkcode clear}.
      * @returns
      */
     reset(): Promise<void>;
     /**
-     * Returns a list of all key in the store.
+     * Returns a list of all keys in the store.
      *
      * @returns
      */
@@ -88,19 +207,16 @@ export declare class Store extends Resource {
      */
     length(): Promise<number>;
     /**
-     * Attempts to load the on-disk state at the stores `path` into memory.
+     * Attempts to load the on-disk state at the store's `path` into memory.
      *
      * This method is useful if the on-disk state was edited by the user and you want to synchronize the changes.
      *
      * Note: This method does not emit change events.
      * @returns
      */
-    load(): Promise<void>;
+    reload(): Promise<void>;
     /**
-     * Saves the store to disk at the stores `path`.
-     *
-     * As the store is only persisted to disk before the apps exit, changes might be lost in a crash.
-     * This method lets you persist the store to disk whenever you deem necessary.
+     * Saves the store to disk at the store's `path`.
      * @returns
      */
     save(): Promise<void>;
@@ -112,7 +228,7 @@ export declare class Store extends Resource {
      *
      * @since 2.0.0
      */
-    onKeyChange<T>(key: string, cb: (value: T | null) => void): Promise<UnlistenFn>;
+    onKeyChange<T>(key: string, cb: (value: T | undefined) => void): Promise<UnlistenFn>;
     /**
      * Listen to changes on the store.
      * @param cb
@@ -120,5 +236,11 @@ export declare class Store extends Resource {
      *
      * @since 2.0.0
      */
-    onChange<T>(cb: (key: string, value: T | null) => void): Promise<UnlistenFn>;
+    onChange<T>(cb: (key: string, value: T | undefined) => void): Promise<UnlistenFn>;
+    /**
+     * Close the store and cleans up this resource from memory.
+     * **You should not call any method on this object anymore and should drop any reference to it.**
+     */
+    close(): Promise<void>;
 }
+export {};
