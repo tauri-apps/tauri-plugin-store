@@ -95,8 +95,8 @@ class LazyStore {
     async length() {
         return (await this.store).length();
     }
-    async reload() {
-        await (await this.store).reload();
+    async reload(options) {
+        await (await this.store).reload(options);
     }
     async save() {
         await (await this.store).save();
@@ -135,7 +135,7 @@ class Store extends core.Resource {
     static async load(path, options) {
         const rid = await core.invoke('plugin:store|load', {
             path,
-            ...options
+            options
         });
         return new Store(rid);
     }
@@ -205,8 +205,8 @@ class Store extends core.Resource {
     async length() {
         return await core.invoke('plugin:store|length', { rid: this.rid });
     }
-    async reload() {
-        await core.invoke('plugin:store|reload', { rid: this.rid });
+    async reload(options) {
+        await core.invoke('plugin:store|reload', { rid: this.rid, ...options });
     }
     async save() {
         await core.invoke('plugin:store|save', { rid: this.rid });
