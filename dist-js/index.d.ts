@@ -7,7 +7,7 @@ export type StoreOptions = {
     /**
      * Default value of the store
      */
-    defaults: {
+    defaults?: {
         [key: string]: unknown;
     };
     /**
