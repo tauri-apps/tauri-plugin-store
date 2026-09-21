@@ -1,8 +1,16 @@
 # Changelog
 
+## [3.0.0-alpha.1]
+
+- [`15bf611d`](https://github.com/tauri-apps/plugins-workspace/commit/15bf611d68b15f343c0e8f6834a64d0cf2cc1637) Update to @tauri-apps/api v3.0.0-alpha.
+
 ## [3.0.0-alpha.0]
 
 - [`363438b5`](https://github.com/tauri-apps/plugins-workspace/commit/363438b50a09162379d57c7c7bfc132520c1e5d4) Update to tauri 3.0 alpha.
+
+## [2.4.5]
+
+- [`c050e073`](https://github.com/tauri-apps/plugins-workspace/commit/c050e073b68205bae7389fb86958cb9331e1a3be) ([#3572](https://github.com/tauri-apps/plugins-workspace/pull/3572) by [@Legend-Master](https://github.com/tauri-apps/plugins-workspace/../../Legend-Master)) Fix `apply_pending_auto_save` can deadlock the store
 
 ## \[2.4.4]
 
